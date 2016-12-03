@@ -13,4 +13,7 @@ member variables for each given structure.
 I've also parsed out the Public Symbols which include the constants and the function addresses, 
 plus I've parsed the enums.
 
+Use the test harness to see how to call the library.
 
+If all went well you should see PbdConstants.cs, PdbEnums.cs and PdbStructures.cs in your
+specified output folder.
