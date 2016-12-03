@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
 
 namespace Pdb_Magician
 {
@@ -12,12 +8,13 @@ namespace Pdb_Magician
         private string _guidAge;
         private string _symbolServer;
         private string _cacheFolder;
+        private string _destinationFolder;
+        private string _pdbFile;
+        private List<string> _todoList = new List<string>();
+
         private const string _userAgent = @"Microsoft-Symbol-Server/10.0.10522.521";
         private List<string> _errorList = new List<string>();
 
-        public PdbMagician()
-        {
-        }
         public bool RetrieveSymbolFile(string filename, string guidAge, string cacheFolder, string server = "http://msdl.microsoft.com/download/symbols")
         {
             _filename = filename;
@@ -27,10 +24,19 @@ namespace Pdb_Magician
 
             return FetchSymbolFile();
         }
-        public bool ParseSymbolFile(string filename)
+        public bool ParseSymbolFile(string pdbName, string destinationFolder, string[] todoList)
         {
-            _filename = filename;
-            return true;
+            _pdbFile = pdbName;
+            if (todoList == null || todoList.Length == 0)
+            {
+                _errorList.Add("You didn't specify any structures to process.");
+                return false;
+            }
+            foreach (string item in todoList)
+                _todoList.Add(item);
+
+            _destinationFolder = destinationFolder;
+            return ProcessSymbolFile();
         }
         public string[] GetErrorList()
         {

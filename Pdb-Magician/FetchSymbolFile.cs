@@ -58,7 +58,19 @@ namespace Pdb_Magician
                 {
                     realTargetName = ProbeWithUnderscore(_filename);
                 }
-                string filePath = _cacheFolder + "\\" + realTargetName;
+                string destinationFolder = Path.Combine(_cacheFolder, _guidAge);
+                DirectoryInfo di = new DirectoryInfo(destinationFolder);
+                if(!di.Exists)
+                {
+                    di.Create();
+                    di = new DirectoryInfo(destinationFolder);
+                    if (!di.Exists)
+                    {
+                        _errorList.Add("Failed to create destination folder: " + destinationFolder);
+                        return false;
+                    }
+                }
+                string filePath = Path.Combine(destinationFolder, realTargetName);
                 FileStream writer = new FileStream(filePath, System.IO.FileMode.Create);
                 webReq = (HttpWebRequest)WebRequest.Create(downloadURL);
                 webReq.UserAgent = _userAgent;

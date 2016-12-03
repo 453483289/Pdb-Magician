@@ -1,6 +1,7 @@
 ﻿using Pdb_Magician;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -25,15 +26,16 @@ namespace TestHarness
             }
             else
                 Console.WriteLine("Got It!");
-            //myLib.ProcessPdb(Path.Combine(@"c:\temp", filename));
-            //List<string> todoList = new List<string>();
+
+            string pdbLocation = Path.Combine(Path.Combine(@"c:\temp\magician", guidAge), filename);
+            List<string> todoList = new List<string>();
             //todoList.Add("_CONTROL_AREA");
             //todoList.Add("_SECTION");
             //todoList.Add("_KAPC");
             //todoList.Add("_LIST_ENTRY");
-            //todoList.Add("_EPROCESS");
+            todoList.Add("_EPROCESS");
 
-            //ProcessPdb myLib = new ProcessPdb(Path.Combine(@"c:\temp", filename), todoList.ToArray());
+            result = myLib.ParseSymbolFile(pdbLocation, Path.Combine(@"c:\temp\magician", guidAge), todoList.ToArray());
         }
     }
 }
