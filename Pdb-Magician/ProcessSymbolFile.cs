@@ -53,8 +53,25 @@ namespace Pdb_Magician
                 }
                 overallCount = _todoList.Count + _todoSymbolList.Count;
             }
+            if (!ExportStructures())
+                return false;
 
-            return ExportStructures();
+            List<string> sourceFiles = new List<string>();
+            sourceFiles.Add(Path.Combine(_destinationFolder, "PdbConstants.cs"));
+            sourceFiles.Add(Path.Combine(_destinationFolder, "PdbEnums.cs"));
+            sourceFiles.Add(Path.Combine(_destinationFolder, "PdbStructures.cs"));
+
+            LibraryBuilder builder = new LibraryBuilder(sourceFiles.ToArray(), _destinationFolder);
+            bool result = builder.Build();
+            if(!result)
+            {
+                string[] errors = builder.GetErrorList();
+                foreach (string s in errors)
+                    _errorList.Add(s);
+                return false;
+            }
+
+            return true;
         }
 
 

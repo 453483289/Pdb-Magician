@@ -10,7 +10,7 @@ namespace Pdb_Magician
 {
     public partial class PdbMagician
     {
-        private void ProcessStructure(string structureName)
+        private bool ProcessStructure(string structureName)
         {
             List<string> accessBlock = new List<string>();
             List<string> variablesBlock = new List<string>();
@@ -23,10 +23,10 @@ namespace Pdb_Magician
                 if (sym.name == structureName)
                 {
                     Symbol s = new Symbol(sym);
-                    ProcessSymbol(s);
-                    return;
+                    return ProcessSymbol(s);
                 }
             }
+            return false;
         }
 
     }

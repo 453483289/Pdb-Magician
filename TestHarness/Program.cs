@@ -35,7 +35,16 @@ namespace TestHarness
             //todoList.Add("_LIST_ENTRY");
             todoList.Add("_EPROCESS");
 
-            result = myLib.ParseSymbolFile(pdbLocation, Path.Combine(@"c:\temp\magician", guidAge), todoList.ToArray());
+            result = myLib.ParseSymbolFile(pdbLocation, @"E:\Code\github\Pdb-Magician\MemoryExplorer.Symbols", todoList.ToArray());
+            if (!result)
+            {
+                Console.WriteLine("One or more errors occurred..");
+                string[] errors = myLib.GetErrorList();
+                foreach (string s in errors)
+                    Console.WriteLine(s);
+            }
+            else
+                Console.WriteLine("Built It!");
         }
     }
 }
