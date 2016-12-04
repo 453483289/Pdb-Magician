@@ -24,11 +24,8 @@ namespace Pdb_Magician
         public UInt64 bitMask;
         public string arrayType;
         public int arrayCount;
+        public string targetArg = "";
 
-        public FunctionRecord()
-        {
-
-        }
         public FunctionRecord(Symbol child, Members member, Symbol grandChild, int pointerSize)
         {
             _pointerSize = pointerSize;
@@ -49,15 +46,16 @@ namespace Pdb_Magician
                 bitMask = GetMask(startBit, endBit);
                 type = "BitField";
             }
-            else if (type != null && friendlySymbolType.EndsWith("]"))
+            else if (friendlySymbolType != null && friendlySymbolType.EndsWith("]"))
             {
-                string[] parts = type.Split(new char[] { '[', ']' }, StringSplitOptions.RemoveEmptyEntries);
+                string[] parts = friendlySymbolType.Split(new char[] { '[', ']' }, StringSplitOptions.RemoveEmptyEntries);
                 if(parts.Length == 2)
                 {
                     try
                     {
                         arrayType = parts[0];
                         arrayCount = int.Parse(parts[1]);
+                        structureType = arrayType + "[]";
                         isArray = true;
                     }
                     catch { }
@@ -154,12 +152,21 @@ namespace Pdb_Magician
         }
         private string GetUsefulSymbolType(string st)
         {
+            string pointer = _pointerSize == 4 ? "UInt32" : "UInt64";
             if (st.EndsWith("*"))
             {
-                return _pointerSize == 4 ? "UInt32" : "UInt64";
+                return pointer;
             }
+            
             if (st.EndsWith("]"))
             {
+                if(st.Contains("*["))
+                {
+                    //  _RTL_BALANCED_NODE*[2] Children
+                    int index = st.IndexOf('*');
+                    targetArg = st.Substring(0, index+1);
+                    return st.Replace(targetArg, pointer);
+                }
                 if (st.StartsWith("unsigned long"))
                     return st.Replace("unsigned long", "UInt32");
                 if (st.StartsWith("unsigned long long"))

@@ -48,6 +48,14 @@ namespace Pdb_Magician
                 fr = ProcessChild(child);
                 entries.Add(fr);
             }
+            foreach (FunctionRecord entry in entries)
+            {
+                if (entry.type.StartsWith("_") && structureName != entry.type && !_doneList.Contains(entry.type) && !_todoList.Contains(entry.type) && !entry.type.StartsWith("_UNNAMED"))
+                {
+                    _todoList.Add(entry.type);
+                    Debug.WriteLine("Adding: " + entry.type);
+                }
+            }
             string[] manifestParts = TidyManifest(structureName);
             // write out the body
             AddToBody(" ", 0);
@@ -87,6 +95,11 @@ namespace Pdb_Magician
             Symbol c = new Symbol(child);
             Members member = new Members(c);
             Symbol grandChild = c.InspectType();
+            if ("Reserved" == c.Name)
+            {
+                Debug.WriteLine("");
+            }
+
             // I'm specifically looking for the unnamed types here since this is the best opportunity
             // the record where they are and queue them up for processing
             if (grandChild.Name != null && grandChild.Name.StartsWith("<unnamed-"))
@@ -111,7 +124,7 @@ namespace Pdb_Magician
         private void ProcessTheRest(FunctionRecord fr, Members member, Symbol grandChild, Symbol child)
         {
             Debug.WriteLine(SymbolWrapper.rgAccess[(int)member.access] + " " + fr.friendlySymbolType + " " + child.Name + " offset: " + member.offset + " length: " + grandChild.Length);
-            if("ProcessQuotaUsage" == child.Name)
+            if("Reserved" == child.Name)
             {
                 Debug.WriteLine("");
             }
@@ -191,6 +204,8 @@ namespace Pdb_Magician
             Dictionary<string, object> loaded = new Dictionary<string, object>();
             loaded.Add("count", fr.arrayCount);
             loaded.Add("target", fr.arrayType);
+            if(fr.targetArg != "")
+                loaded.Add("targetType", fr.targetArg);
             JArray section = GetJsonSection("Array", fr.offset, loaded);
             _manifestRootNodes.Add(new JProperty(fr.name, section));
         }

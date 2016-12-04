@@ -29,13 +29,13 @@ namespace TestHarness
 
             string pdbLocation = Path.Combine(Path.Combine(@"c:\temp\magician", guidAge), filename);
             List<string> todoList = new List<string>();
-            //todoList.Add("_CONTROL_AREA");
-            //todoList.Add("_SECTION");
-            //todoList.Add("_KAPC");
-            //todoList.Add("_LIST_ENTRY");
+            todoList.Add("_CONTROL_AREA");
+            todoList.Add("_SECTION");
+            todoList.Add("_KAPC");
+            todoList.Add("_LIST_ENTRY");
             todoList.Add("_EPROCESS");
 
-            result = myLib.ParseSymbolFile(pdbLocation, @"E:\Code\github\Pdb-Magician\MemoryExplorer.Symbols", todoList.ToArray());
+            result = myLib.ParseSymbolFile(pdbLocation, Path.Combine(@"c:\temp\magician", guidAge), todoList.ToArray());
             if (!result)
             {
                 Console.WriteLine("One or more errors occurred..");

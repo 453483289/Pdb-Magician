@@ -96,8 +96,8 @@ namespace MemoryExplorer.Symbols
 				 ""ProcessSelfDelete"": [ 772, [ ""BitField"", { ""end_bit"": 31, ""start_bit"": 30, ""target"": ""UInt32"" }]],
 				 ""SetTimerResolutionLink"": [ 772, [ ""BitField"", { ""end_bit"": 32, ""start_bit"": 31, ""target"": ""UInt32"" }]],
 				 ""CreateTime"": [ 776, [ ""_LARGE_INTEGER"", {}]],
-				 ""ProcessQuotaUsage"": [ 784, [ ""UInt64[2]"", {}]],
-				 ""ProcessQuotaPeak"": [ 800, [ ""UInt64[2]"", {}]],
+				 ""ProcessQuotaUsage"": [ 784, [ ""Array"", { ""count"": 2, ""target"": ""UInt64"" }]],
+				 ""ProcessQuotaPeak"": [ 800, [ ""Array"", { ""count"": 2, ""target"": ""UInt64"" }]],
 				 ""PeakVirtualSize"": [ 816, [ ""UInt64"", {}]],
 				 ""VirtualSize"": [ 824, [ ""UInt64"", {}]],
 				 ""SessionProcessLinks"": [ 832, [ ""_LIST_ENTRY"", {}]],
@@ -134,7 +134,7 @@ namespace MemoryExplorer.Symbols
 				 ""DeviceMap"": [ 1072, [ ""Pointer"", { ""target"": ""void"" }]],
 				 ""EtwDataSource"": [ 1080, [ ""Pointer"", { ""target"": ""void"" }]],
 				 ""PageDirectoryPte"": [ 1088, [ ""UInt64"", {}]],
-				 ""ImageFileName"": [ 1096, [ ""Byte[15]"", {}]],
+				 ""ImageFileName"": [ 1096, [ ""Array"", { ""count"": 15, ""target"": ""Byte"" }]],
 				 ""PriorityClass"": [ 1111, [ ""Byte"", {}]],
 				 ""SecurityPort"": [ 1112, [ ""Pointer"", { ""target"": ""void"" }]],
 				 ""SeAuditProcessCreationInfo"": [ 1120, [ ""_SE_AUDIT_PROCESS_CREATION_INFO"", {}]],
@@ -841,8 +841,26 @@ namespace MemoryExplorer.Symbols
 				return returnValue;
 			}
 		}
-		public UInt64[2] ProcessQuotaUsage{ get { return BitConverter.ToUInt64[2](_StructureData, _BufferOffset + 784); } }
-		public UInt64[2] ProcessQuotaPeak{ get { return BitConverter.ToUInt64[2](_StructureData, _BufferOffset + 800); } }
+		public UInt64[] ProcessQuotaUsage
+		{
+			get
+			{
+				UInt64[] returnValue = new UInt64[2];
+				for(int i=0; i<2; i++ )
+					returnValue[i] = BitConverter.ToUInt64(_StructureData, (i * sizeof(UInt64)) + _BufferOffset + 784);
+				return returnValue;
+			}
+		}
+		public UInt64[] ProcessQuotaPeak
+		{
+			get
+			{
+				UInt64[] returnValue = new UInt64[2];
+				for(int i=0; i<2; i++ )
+					returnValue[i] = BitConverter.ToUInt64(_StructureData, (i * sizeof(UInt64)) + _BufferOffset + 800);
+				return returnValue;
+			}
+		}
 		public UInt64 PeakVirtualSize{ get { return BitConverter.ToUInt64(_StructureData, _BufferOffset + 816); } }
 		public UInt64 VirtualSize{ get { return BitConverter.ToUInt64(_StructureData, _BufferOffset + 824); } }
 		public _LIST_ENTRY SessionProcessLinks
@@ -923,7 +941,16 @@ namespace MemoryExplorer.Symbols
 		public UInt64 DeviceMap{ get { return BitConverter.ToUInt64(_StructureData, _BufferOffset + 1072); } }
 		public UInt64 EtwDataSource{ get { return BitConverter.ToUInt64(_StructureData, _BufferOffset + 1080); } }
 		public UInt64 PageDirectoryPte{ get { return BitConverter.ToUInt64(_StructureData, _BufferOffset + 1088); } }
-		public Byte[15] ImageFileName{ get { return BitConverter.ToByte[15](_StructureData, _BufferOffset + 1096); } }
+		public Byte[] ImageFileName
+		{
+			get
+			{
+				Byte[] returnValue = new Byte[15];
+				for(int i=0; i<15; i++ )
+					returnValue[i] = _StructureData[i + _BufferOffset + 1096];
+				return returnValue;
+			}
+		}
 		public Byte PriorityClass{ get { return _StructureData[_BufferOffset +1111]; } }
 		public UInt64 SecurityPort{ get { return BitConverter.ToUInt64(_StructureData, _BufferOffset + 1112); } }
 		public _SE_AUDIT_PROCESS_CREATION_INFO SeAuditProcessCreationInfo
@@ -1298,6 +1325,1949 @@ namespace MemoryExplorer.Symbols
 		public UInt64 DefaultCpuSets{ get { return BitConverter.ToUInt64(_StructureData, _BufferOffset + 1936); } }
 		public UInt64 AllowedCpuSetsIndirect{ get { return BitConverter.ToUInt64(_StructureData, _BufferOffset + 1928); } }
 		public UInt64 DefaultCpuSetsIndirect{ get { return BitConverter.ToUInt64(_StructureData, _BufferOffset + 1936); } }
+	}
+	#endregion
+	#region _KPROCESS
+ 
+	public class _KPROCESS
+	{
+		private Byte[] _StructureData;
+		private int _BufferOffset;
+		public _KPROCESS(Byte[] Buffer, int PartitionOffset)
+		{
+			_StructureData = Buffer;
+			_BufferOffset = PartitionOffset;
+		}
+		public int MxStructureSize { get { return _StructureData.Length; } }
+		public string manifest
+		{
+			get
+			{
+				return @"(
+				{
+				 ""_KPROCESS"": [ 728, {
+				 ""Header"": [ 0, [ ""_DISPATCHER_HEADER"", {}]],
+				 ""ProfileListHead"": [ 24, [ ""_LIST_ENTRY"", {}]],
+				 ""DirectoryTableBase"": [ 40, [ ""UInt64"", {}]],
+				 ""ThreadListHead"": [ 48, [ ""_LIST_ENTRY"", {}]],
+				 ""ProcessLock"": [ 64, [ ""UInt32"", {}]],
+				 ""Spare0"": [ 68, [ ""UInt32"", {}]],
+				 ""DeepFreezeStartTime"": [ 72, [ ""UInt64"", {}]],
+				 ""Affinity"": [ 80, [ ""_KAFFINITY_EX"", {}]],
+				 ""ReadyListHead"": [ 248, [ ""_LIST_ENTRY"", {}]],
+				 ""SwapListEntry"": [ 264, [ ""_SINGLE_LIST_ENTRY"", {}]],
+				 ""ActiveProcessors"": [ 272, [ ""_KAFFINITY_EX"", {}]],
+				 ""AutoAlignment"": [ 440, [ ""BitField"", { ""end_bit"": 1, ""start_bit"": 0, ""target"": ""Int32"" }]],
+				 ""DisableBoost"": [ 440, [ ""BitField"", { ""end_bit"": 2, ""start_bit"": 1, ""target"": ""Int32"" }]],
+				 ""DisableQuantum"": [ 440, [ ""BitField"", { ""end_bit"": 3, ""start_bit"": 2, ""target"": ""Int32"" }]],
+				 ""DeepFreeze"": [ 440, [ ""BitField"", { ""end_bit"": 4, ""start_bit"": 3, ""target"": ""UInt32"" }]],
+				 ""TimerVirtualization"": [ 440, [ ""BitField"", { ""end_bit"": 5, ""start_bit"": 4, ""target"": ""UInt32"" }]],
+				 ""CheckStackExtents"": [ 440, [ ""BitField"", { ""end_bit"": 6, ""start_bit"": 5, ""target"": ""UInt32"" }]],
+				 ""SpareFlags0"": [ 440, [ ""BitField"", { ""end_bit"": 8, ""start_bit"": 6, ""target"": ""UInt32"" }]],
+				 ""ActiveGroupsMask"": [ 440, [ ""BitField"", { ""end_bit"": 28, ""start_bit"": 8, ""target"": ""UInt32"" }]],
+				 ""ReservedFlags"": [ 440, [ ""BitField"", { ""end_bit"": 32, ""start_bit"": 28, ""target"": ""Int32"" }]],
+				 ""ProcessFlags"": [ 440, [ ""Int32"", {}]],
+				 ""BasePriority"": [ 444, [ ""Char"", {}]],
+				 ""QuantumReset"": [ 445, [ ""Char"", {}]],
+				 ""Visited"": [ 446, [ ""Byte"", {}]],
+				 ""Flags"": [ 447, [ ""_KEXECUTE_OPTIONS"", {}]],
+				 ""ThreadSeed"": [ 448, [ ""Array"", { ""count"": 20, ""target"": ""UInt32"" }]],
+				 ""IdealNode"": [ 528, [ ""Array"", { ""count"": 20, ""target"": ""UInt16"" }]],
+				 ""IdealGlobalNode"": [ 568, [ ""UInt16"", {}]],
+				 ""Spare1"": [ 570, [ ""UInt16"", {}]],
+				 ""StackCount"": [ 572, [ ""_KSTACK_COUNT"", {}]],
+				 ""ProcessListEntry"": [ 576, [ ""_LIST_ENTRY"", {}]],
+				 ""CycleTime"": [ 592, [ ""UInt64"", {}]],
+				 ""ContextSwitches"": [ 600, [ ""UInt64"", {}]],
+				 ""SchedulingGroup"": [ 608, [ ""Pointer"", { ""target"": ""_KSCHEDULING_GROUP"" }]],
+				 ""FreezeCount"": [ 616, [ ""UInt32"", {}]],
+				 ""KernelTime"": [ 620, [ ""UInt32"", {}]],
+				 ""UserTime"": [ 624, [ ""UInt32"", {}]],
+				 ""LdtFreeSelectorHint"": [ 628, [ ""UInt16"", {}]],
+				 ""LdtTableLength"": [ 630, [ ""UInt16"", {}]],
+				 ""LdtSystemDescriptor"": [ 632, [ ""_KGDTENTRY64"", {}]],
+				 ""LdtBaseAddress"": [ 648, [ ""Pointer"", { ""target"": ""void"" }]],
+				 ""LdtProcessLock"": [ 656, [ ""_FAST_MUTEX"", {}]],
+				 ""InstrumentationCallback"": [ 712, [ ""Pointer"", { ""target"": ""void"" }]],
+				 ""SecurePid"": [ 720, [ ""UInt64"", {}]] }]
+				 }
+				)";
+			}
+		}
+		public _DISPATCHER_HEADER Header
+		{
+			get
+			{
+				_DISPATCHER_HEADER returnValue = new _DISPATCHER_HEADER(_StructureData, _BufferOffset + 0);
+				return returnValue;
+			}
+		}
+		public _LIST_ENTRY ProfileListHead
+		{
+			get
+			{
+				_LIST_ENTRY returnValue = new _LIST_ENTRY(_StructureData, _BufferOffset + 24);
+				return returnValue;
+			}
+		}
+		public UInt64 DirectoryTableBase{ get { return BitConverter.ToUInt64(_StructureData, _BufferOffset + 40); } }
+		public _LIST_ENTRY ThreadListHead
+		{
+			get
+			{
+				_LIST_ENTRY returnValue = new _LIST_ENTRY(_StructureData, _BufferOffset + 48);
+				return returnValue;
+			}
+		}
+		public UInt32 ProcessLock{ get { return BitConverter.ToUInt32(_StructureData, _BufferOffset + 64); } }
+		public UInt32 Spare0{ get { return BitConverter.ToUInt32(_StructureData, _BufferOffset + 68); } }
+		public UInt64 DeepFreezeStartTime{ get { return BitConverter.ToUInt64(_StructureData, _BufferOffset + 72); } }
+		public _KAFFINITY_EX Affinity
+		{
+			get
+			{
+				_KAFFINITY_EX returnValue = new _KAFFINITY_EX(_StructureData, _BufferOffset + 80);
+				return returnValue;
+			}
+		}
+		public _LIST_ENTRY ReadyListHead
+		{
+			get
+			{
+				_LIST_ENTRY returnValue = new _LIST_ENTRY(_StructureData, _BufferOffset + 248);
+				return returnValue;
+			}
+		}
+		public _SINGLE_LIST_ENTRY SwapListEntry
+		{
+			get
+			{
+				_SINGLE_LIST_ENTRY returnValue = new _SINGLE_LIST_ENTRY(_StructureData, _BufferOffset + 264);
+				return returnValue;
+			}
+		}
+		public _KAFFINITY_EX ActiveProcessors
+		{
+			get
+			{
+				_KAFFINITY_EX returnValue = new _KAFFINITY_EX(_StructureData, _BufferOffset + 272);
+				return returnValue;
+			}
+		}
+		public UInt32 AutoAlignment
+		{
+			get
+			{
+				// start: 0  end: 1  Mask: 0000000000000001
+				var value = BitConverter.ToUInt32(_StructureData, _BufferOffset + 440);
+				var value2 = (value & 1) >> 0;
+				return (UInt32)value2;
+			}
+		}
+		public UInt32 DisableBoost
+		{
+			get
+			{
+				// start: 1  end: 2  Mask: 0000000000000010
+				var value = BitConverter.ToUInt32(_StructureData, _BufferOffset + 440);
+				var value2 = (value & 2) >> 1;
+				return (UInt32)value2;
+			}
+		}
+		public UInt32 DisableQuantum
+		{
+			get
+			{
+				// start: 2  end: 3  Mask: 0000000000000100
+				var value = BitConverter.ToUInt32(_StructureData, _BufferOffset + 440);
+				var value2 = (value & 4) >> 2;
+				return (UInt32)value2;
+			}
+		}
+		public UInt32 DeepFreeze
+		{
+			get
+			{
+				// start: 3  end: 4  Mask: 0000000000001000
+				var value = BitConverter.ToUInt32(_StructureData, _BufferOffset + 440);
+				var value2 = (value & 8) >> 3;
+				return (UInt32)value2;
+			}
+		}
+		public UInt32 TimerVirtualization
+		{
+			get
+			{
+				// start: 4  end: 5  Mask: 0000000000010000
+				var value = BitConverter.ToUInt32(_StructureData, _BufferOffset + 440);
+				var value2 = (value & 16) >> 4;
+				return (UInt32)value2;
+			}
+		}
+		public UInt32 CheckStackExtents
+		{
+			get
+			{
+				// start: 5  end: 6  Mask: 0000000000100000
+				var value = BitConverter.ToUInt32(_StructureData, _BufferOffset + 440);
+				var value2 = (value & 32) >> 5;
+				return (UInt32)value2;
+			}
+		}
+		public UInt32 SpareFlags0
+		{
+			get
+			{
+				// start: 6  end: 8  Mask: 0000000011000000
+				var value = BitConverter.ToUInt32(_StructureData, _BufferOffset + 440);
+				var value2 = (value & 192) >> 6;
+				return (UInt32)value2;
+			}
+		}
+		public UInt32 ActiveGroupsMask
+		{
+			get
+			{
+				// start: 8  end: 28  Mask: 1111111111111111111100000000
+				var value = BitConverter.ToUInt32(_StructureData, _BufferOffset + 440);
+				var value2 = (value & 268435200) >> 8;
+				return (UInt32)value2;
+			}
+		}
+		public UInt32 ReservedFlags
+		{
+			get
+			{
+				// start: 28  end: 32  Mask: 11110000000000000000000000000000
+				var value = BitConverter.ToUInt32(_StructureData, _BufferOffset + 440);
+				var value2 = (value & 4026531840) >> 28;
+				return (UInt32)value2;
+			}
+		}
+		public Int32 ProcessFlags{ get { return BitConverter.ToInt32(_StructureData, _BufferOffset + 440); } }
+		public Char BasePriority{ get { return BitConverter.ToChar(_StructureData, _BufferOffset + 444); } }
+		public Char QuantumReset{ get { return BitConverter.ToChar(_StructureData, _BufferOffset + 445); } }
+		public Byte Visited{ get { return _StructureData[_BufferOffset +446]; } }
+		public _KEXECUTE_OPTIONS Flags
+		{
+			get
+			{
+				_KEXECUTE_OPTIONS returnValue = new _KEXECUTE_OPTIONS(_StructureData, _BufferOffset + 447);
+				return returnValue;
+			}
+		}
+		public UInt32[] ThreadSeed
+		{
+			get
+			{
+				UInt32[] returnValue = new UInt32[20];
+				for(int i=0; i<20; i++ )
+					returnValue[i] = BitConverter.ToUInt32(_StructureData, (i * sizeof(UInt32)) + _BufferOffset + 448);
+				return returnValue;
+			}
+		}
+		public UInt16[] IdealNode
+		{
+			get
+			{
+				UInt16[] returnValue = new UInt16[20];
+				for(int i=0; i<20; i++ )
+					returnValue[i] = BitConverter.ToUInt16(_StructureData, (i * sizeof(UInt16)) + _BufferOffset + 528);
+				return returnValue;
+			}
+		}
+		public UInt16 IdealGlobalNode{ get { return BitConverter.ToUInt16(_StructureData, _BufferOffset + 568); } }
+		public UInt16 Spare1{ get { return BitConverter.ToUInt16(_StructureData, _BufferOffset + 570); } }
+		public _KSTACK_COUNT StackCount
+		{
+			get
+			{
+				_KSTACK_COUNT returnValue = new _KSTACK_COUNT(_StructureData, _BufferOffset + 572);
+				return returnValue;
+			}
+		}
+		public _LIST_ENTRY ProcessListEntry
+		{
+			get
+			{
+				_LIST_ENTRY returnValue = new _LIST_ENTRY(_StructureData, _BufferOffset + 576);
+				return returnValue;
+			}
+		}
+		public UInt64 CycleTime{ get { return BitConverter.ToUInt64(_StructureData, _BufferOffset + 592); } }
+		public UInt64 ContextSwitches{ get { return BitConverter.ToUInt64(_StructureData, _BufferOffset + 600); } }
+		public UInt64 SchedulingGroup{ get { return BitConverter.ToUInt64(_StructureData, _BufferOffset + 608); } }
+		public UInt32 FreezeCount{ get { return BitConverter.ToUInt32(_StructureData, _BufferOffset + 616); } }
+		public UInt32 KernelTime{ get { return BitConverter.ToUInt32(_StructureData, _BufferOffset + 620); } }
+		public UInt32 UserTime{ get { return BitConverter.ToUInt32(_StructureData, _BufferOffset + 624); } }
+		public UInt16 LdtFreeSelectorHint{ get { return BitConverter.ToUInt16(_StructureData, _BufferOffset + 628); } }
+		public UInt16 LdtTableLength{ get { return BitConverter.ToUInt16(_StructureData, _BufferOffset + 630); } }
+		public _KGDTENTRY64 LdtSystemDescriptor
+		{
+			get
+			{
+				_KGDTENTRY64 returnValue = new _KGDTENTRY64(_StructureData, _BufferOffset + 632);
+				return returnValue;
+			}
+		}
+		public UInt64 LdtBaseAddress{ get { return BitConverter.ToUInt64(_StructureData, _BufferOffset + 648); } }
+		public _FAST_MUTEX LdtProcessLock
+		{
+			get
+			{
+				_FAST_MUTEX returnValue = new _FAST_MUTEX(_StructureData, _BufferOffset + 656);
+				return returnValue;
+			}
+		}
+		public UInt64 InstrumentationCallback{ get { return BitConverter.ToUInt64(_StructureData, _BufferOffset + 712); } }
+		public UInt64 SecurePid{ get { return BitConverter.ToUInt64(_StructureData, _BufferOffset + 720); } }
+	}
+	#endregion
+	#region _EX_PUSH_LOCK
+ 
+	public class _EX_PUSH_LOCK
+	{
+		private Byte[] _StructureData;
+		private int _BufferOffset;
+		public _EX_PUSH_LOCK(Byte[] Buffer, int PartitionOffset)
+		{
+			_StructureData = Buffer;
+			_BufferOffset = PartitionOffset;
+		}
+		public int MxStructureSize { get { return _StructureData.Length; } }
+		public string manifest
+		{
+			get
+			{
+				return @"(
+				{
+				 ""_EX_PUSH_LOCK"": [ 8, {
+				 ""Locked"": [ 0, [ ""BitField"", { ""end_bit"": 1, ""start_bit"": 0, ""target"": ""UInt64"" }]],
+				 ""Waiting"": [ 0, [ ""BitField"", { ""end_bit"": 2, ""start_bit"": 1, ""target"": ""UInt64"" }]],
+				 ""Waking"": [ 0, [ ""BitField"", { ""end_bit"": 3, ""start_bit"": 2, ""target"": ""UInt64"" }]],
+				 ""MultipleShared"": [ 0, [ ""BitField"", { ""end_bit"": 4, ""start_bit"": 3, ""target"": ""UInt64"" }]],
+				 ""Shared"": [ 0, [ ""BitField"", { ""end_bit"": 64, ""start_bit"": 4, ""target"": ""UInt64"" }]],
+				 ""Value"": [ 0, [ ""UInt64"", {}]],
+				 ""Ptr"": [ 0, [ ""Pointer"", { ""target"": ""void"" }]] }]
+				 }
+				)";
+			}
+		}
+		public UInt64 Locked
+		{
+			get
+			{
+				// start: 0  end: 1  Mask: 0000000000000001
+				var value = BitConverter.ToUInt64(_StructureData, _BufferOffset + 0);
+				var value2 = (value & 1) >> 0;
+				return (UInt64)value2;
+			}
+		}
+		public UInt64 Waiting
+		{
+			get
+			{
+				// start: 1  end: 2  Mask: 0000000000000010
+				var value = BitConverter.ToUInt64(_StructureData, _BufferOffset + 0);
+				var value2 = (value & 2) >> 1;
+				return (UInt64)value2;
+			}
+		}
+		public UInt64 Waking
+		{
+			get
+			{
+				// start: 2  end: 3  Mask: 0000000000000100
+				var value = BitConverter.ToUInt64(_StructureData, _BufferOffset + 0);
+				var value2 = (value & 4) >> 2;
+				return (UInt64)value2;
+			}
+		}
+		public UInt64 MultipleShared
+		{
+			get
+			{
+				// start: 3  end: 4  Mask: 0000000000001000
+				var value = BitConverter.ToUInt64(_StructureData, _BufferOffset + 0);
+				var value2 = (value & 8) >> 3;
+				return (UInt64)value2;
+			}
+		}
+		public UInt64 Shared
+		{
+			get
+			{
+				// start: 4  end: 64  Mask: 0000000000000000000000000000000011111111111111111111111111110000
+				var value = BitConverter.ToUInt64(_StructureData, _BufferOffset + 0);
+				var value2 = (value & 4294967280) >> 4;
+				return (UInt64)value2;
+			}
+		}
+		public UInt64 Value{ get { return BitConverter.ToUInt64(_StructureData, _BufferOffset + 0); } }
+		public UInt64 Ptr{ get { return BitConverter.ToUInt64(_StructureData, _BufferOffset + 0); } }
+	}
+	#endregion
+	#region _EX_RUNDOWN_REF
+ 
+	public class _EX_RUNDOWN_REF
+	{
+		private Byte[] _StructureData;
+		private int _BufferOffset;
+		public _EX_RUNDOWN_REF(Byte[] Buffer, int PartitionOffset)
+		{
+			_StructureData = Buffer;
+			_BufferOffset = PartitionOffset;
+		}
+		public int MxStructureSize { get { return _StructureData.Length; } }
+		public string manifest
+		{
+			get
+			{
+				return @"(
+				{
+				 ""_EX_RUNDOWN_REF"": [ 8, {
+				 ""Count"": [ 0, [ ""UInt64"", {}]],
+				 ""Ptr"": [ 0, [ ""Pointer"", { ""target"": ""void"" }]] }]
+				 }
+				)";
+			}
+		}
+		public UInt64 Count{ get { return BitConverter.ToUInt64(_StructureData, _BufferOffset + 0); } }
+		public UInt64 Ptr{ get { return BitConverter.ToUInt64(_StructureData, _BufferOffset + 0); } }
+	}
+	#endregion
+	#region _LIST_ENTRY
+ 
+	public class _LIST_ENTRY
+	{
+		private Byte[] _StructureData;
+		private int _BufferOffset;
+		public _LIST_ENTRY(Byte[] Buffer, int PartitionOffset)
+		{
+			_StructureData = Buffer;
+			_BufferOffset = PartitionOffset;
+		}
+		public int MxStructureSize { get { return _StructureData.Length; } }
+		public string manifest
+		{
+			get
+			{
+				return @"(
+				{
+				 ""_LIST_ENTRY"": [ 16, {
+				 ""Flink"": [ 0, [ ""Pointer"", { ""target"": ""_LIST_ENTRY"" }]],
+				 ""Blink"": [ 8, [ ""Pointer"", { ""target"": ""_LIST_ENTRY"" }]] }]
+				 }
+				)";
+			}
+		}
+		public UInt64 Flink{ get { return BitConverter.ToUInt64(_StructureData, _BufferOffset + 0); } }
+		public UInt64 Blink{ get { return BitConverter.ToUInt64(_StructureData, _BufferOffset + 8); } }
+	}
+	#endregion
+	#region _LARGE_INTEGER
+ 
+	public class _LARGE_INTEGER
+	{
+		private Byte[] _StructureData;
+		private int _BufferOffset;
+		public _LARGE_INTEGER(Byte[] Buffer, int PartitionOffset)
+		{
+			_StructureData = Buffer;
+			_BufferOffset = PartitionOffset;
+		}
+		public int MxStructureSize { get { return _StructureData.Length; } }
+		public string manifest
+		{
+			get
+			{
+				return @"(
+				{
+				 ""_LARGE_INTEGER"": [ 8, {
+				 ""LowPart"": [ 0, [ ""UInt32"", {}]],
+				 ""HighPart"": [ 4, [ ""Int32"", {}]],
+				 ""u"": [ 0, [ ""_UNNAMED_29815"", {}]],
+				 ""QuadPart"": [ 0, [ ""Int64"", {}]] }]
+				 }
+				)";
+			}
+		}
+		public UInt32 LowPart{ get { return BitConverter.ToUInt32(_StructureData, _BufferOffset + 0); } }
+		public Int32 HighPart{ get { return BitConverter.ToInt32(_StructureData, _BufferOffset + 4); } }
+		public _UNNAMED_29815 u
+		{
+			get
+			{
+				_UNNAMED_29815 returnValue = new _UNNAMED_29815(_StructureData, _BufferOffset + 0);
+				return returnValue;
+			}
+		}
+		public Int64 QuadPart{ get { return BitConverter.ToInt64(_StructureData, _BufferOffset + 0); } }
+	}
+	#endregion
+	#region _UNNAMED_29815
+ 
+	public class _UNNAMED_29815
+	{
+		private Byte[] _StructureData;
+		private int _BufferOffset;
+		public _UNNAMED_29815(Byte[] Buffer, int PartitionOffset)
+		{
+			_StructureData = Buffer;
+			_BufferOffset = PartitionOffset;
+		}
+		public int MxStructureSize { get { return _StructureData.Length; } }
+		public string manifest
+		{
+			get
+			{
+				return @"(
+				{
+				 ""_UNNAMED_29815"": [ 8, {
+				 ""LowPart"": [ 0, [ ""UInt32"", {}]],
+				 ""HighPart"": [ 4, [ ""Int32"", {}]] }]
+				 }
+				)";
+			}
+		}
+		public UInt32 LowPart{ get { return BitConverter.ToUInt32(_StructureData, _BufferOffset + 0); } }
+		public Int32 HighPart{ get { return BitConverter.ToInt32(_StructureData, _BufferOffset + 4); } }
+	}
+	#endregion
+	#region _EX_FAST_REF
+ 
+	public class _EX_FAST_REF
+	{
+		private Byte[] _StructureData;
+		private int _BufferOffset;
+		public _EX_FAST_REF(Byte[] Buffer, int PartitionOffset)
+		{
+			_StructureData = Buffer;
+			_BufferOffset = PartitionOffset;
+		}
+		public int MxStructureSize { get { return _StructureData.Length; } }
+		public string manifest
+		{
+			get
+			{
+				return @"(
+				{
+				 ""_EX_FAST_REF"": [ 8, {
+				 ""Object"": [ 0, [ ""Pointer"", { ""target"": ""void"" }]],
+				 ""RefCnt"": [ 0, [ ""BitField"", { ""end_bit"": 4, ""start_bit"": 0, ""target"": ""UInt64"" }]],
+				 ""Value"": [ 0, [ ""UInt64"", {}]] }]
+				 }
+				)";
+			}
+		}
+		public UInt64 Object{ get { return BitConverter.ToUInt64(_StructureData, _BufferOffset + 0); } }
+		public UInt64 RefCnt
+		{
+			get
+			{
+				// start: 0  end: 4  Mask: 0000000000001111
+				var value = BitConverter.ToUInt64(_StructureData, _BufferOffset + 0);
+				var value2 = (value & 15) >> 0;
+				return (UInt64)value2;
+			}
+		}
+		public UInt64 Value{ get { return BitConverter.ToUInt64(_StructureData, _BufferOffset + 0); } }
+	}
+	#endregion
+	#region _RTL_AVL_TREE
+ 
+	public class _RTL_AVL_TREE
+	{
+		private Byte[] _StructureData;
+		private int _BufferOffset;
+		public _RTL_AVL_TREE(Byte[] Buffer, int PartitionOffset)
+		{
+			_StructureData = Buffer;
+			_BufferOffset = PartitionOffset;
+		}
+		public int MxStructureSize { get { return _StructureData.Length; } }
+		public string manifest
+		{
+			get
+			{
+				return @"(
+				{
+				 ""_RTL_AVL_TREE"": [ 8, {
+				 ""Root"": [ 0, [ ""Pointer"", { ""target"": ""_RTL_BALANCED_NODE"" }]] }]
+				 }
+				)";
+			}
+		}
+		public UInt64 Root{ get { return BitConverter.ToUInt64(_StructureData, _BufferOffset + 0); } }
+	}
+	#endregion
+	#region _SE_AUDIT_PROCESS_CREATION_INFO
+ 
+	public class _SE_AUDIT_PROCESS_CREATION_INFO
+	{
+		private Byte[] _StructureData;
+		private int _BufferOffset;
+		public _SE_AUDIT_PROCESS_CREATION_INFO(Byte[] Buffer, int PartitionOffset)
+		{
+			_StructureData = Buffer;
+			_BufferOffset = PartitionOffset;
+		}
+		public int MxStructureSize { get { return _StructureData.Length; } }
+		public string manifest
+		{
+			get
+			{
+				return @"(
+				{
+				 ""_SE_AUDIT_PROCESS_CREATION_INFO"": [ 8, {
+				 ""ImageFileName"": [ 0, [ ""Pointer"", { ""target"": ""_OBJECT_NAME_INFORMATION"" }]] }]
+				 }
+				)";
+			}
+		}
+		public UInt64 ImageFileName{ get { return BitConverter.ToUInt64(_StructureData, _BufferOffset + 0); } }
+	}
+	#endregion
+	#region _MMSUPPORT
+ 
+	public class _MMSUPPORT
+	{
+		private Byte[] _StructureData;
+		private int _BufferOffset;
+		public _MMSUPPORT(Byte[] Buffer, int PartitionOffset)
+		{
+			_StructureData = Buffer;
+			_BufferOffset = PartitionOffset;
+		}
+		public int MxStructureSize { get { return _StructureData.Length; } }
+		public string manifest
+		{
+			get
+			{
+				return @"(
+				{
+				 ""_MMSUPPORT"": [ 248, {
+				 ""WorkingSetLock"": [ 0, [ ""Int32"", {}]],
+				 ""ExitOutswapGate"": [ 8, [ ""Pointer"", { ""target"": ""_KGATE"" }]],
+				 ""AccessLog"": [ 16, [ ""Pointer"", { ""target"": ""void"" }]],
+				 ""WorkingSetExpansionLinks"": [ 24, [ ""_LIST_ENTRY"", {}]],
+				 ""AgeDistribution"": [ 40, [ ""Array"", { ""count"": 7, ""target"": ""UInt64"" }]],
+				 ""MinimumWorkingSetSize"": [ 96, [ ""UInt64"", {}]],
+				 ""WorkingSetLeafSize"": [ 104, [ ""UInt64"", {}]],
+				 ""WorkingSetLeafPrivateSize"": [ 112, [ ""UInt64"", {}]],
+				 ""WorkingSetSize"": [ 120, [ ""UInt64"", {}]],
+				 ""WorkingSetPrivateSize"": [ 128, [ ""UInt64"", {}]],
+				 ""MaximumWorkingSetSize"": [ 136, [ ""UInt64"", {}]],
+				 ""ChargedWslePages"": [ 144, [ ""UInt64"", {}]],
+				 ""ActualWslePages"": [ 152, [ ""UInt64"", {}]],
+				 ""WorkingSetSizeOverhead"": [ 160, [ ""UInt64"", {}]],
+				 ""PeakWorkingSetSize"": [ 168, [ ""UInt64"", {}]],
+				 ""HardFaultCount"": [ 176, [ ""UInt32"", {}]],
+				 ""PartitionId"": [ 180, [ ""UInt16"", {}]],
+				 ""Pad0"": [ 182, [ ""UInt16"", {}]],
+				 ""VmWorkingSetList"": [ 184, [ ""Pointer"", { ""target"": ""_MMWSL"" }]],
+				 ""NextPageColor"": [ 192, [ ""UInt16"", {}]],
+				 ""LastTrimStamp"": [ 194, [ ""UInt16"", {}]],
+				 ""PageFaultCount"": [ 196, [ ""UInt32"", {}]],
+				 ""TrimmedPageCount"": [ 200, [ ""UInt64"", {}]],
+				 ""ForceTrimPages"": [ 208, [ ""UInt64"", {}]],
+				 ""Flags"": [ 216, [ ""_MMSUPPORT_FLAGS"", {}]],
+				 ""ReleasedCommitDebt"": [ 224, [ ""UInt64"", {}]],
+				 ""WsSwapSupport"": [ 232, [ ""Pointer"", { ""target"": ""void"" }]],
+				 ""CommitReAcquireFailSupport"": [ 240, [ ""Pointer"", { ""target"": ""void"" }]] }]
+				 }
+				)";
+			}
+		}
+		public Int32 WorkingSetLock{ get { return BitConverter.ToInt32(_StructureData, _BufferOffset + 0); } }
+		public UInt64 ExitOutswapGate{ get { return BitConverter.ToUInt64(_StructureData, _BufferOffset + 8); } }
+		public UInt64 AccessLog{ get { return BitConverter.ToUInt64(_StructureData, _BufferOffset + 16); } }
+		public _LIST_ENTRY WorkingSetExpansionLinks
+		{
+			get
+			{
+				_LIST_ENTRY returnValue = new _LIST_ENTRY(_StructureData, _BufferOffset + 24);
+				return returnValue;
+			}
+		}
+		public UInt64[] AgeDistribution
+		{
+			get
+			{
+				UInt64[] returnValue = new UInt64[7];
+				for(int i=0; i<7; i++ )
+					returnValue[i] = BitConverter.ToUInt64(_StructureData, (i * sizeof(UInt64)) + _BufferOffset + 40);
+				return returnValue;
+			}
+		}
+		public UInt64 MinimumWorkingSetSize{ get { return BitConverter.ToUInt64(_StructureData, _BufferOffset + 96); } }
+		public UInt64 WorkingSetLeafSize{ get { return BitConverter.ToUInt64(_StructureData, _BufferOffset + 104); } }
+		public UInt64 WorkingSetLeafPrivateSize{ get { return BitConverter.ToUInt64(_StructureData, _BufferOffset + 112); } }
+		public UInt64 WorkingSetSize{ get { return BitConverter.ToUInt64(_StructureData, _BufferOffset + 120); } }
+		public UInt64 WorkingSetPrivateSize{ get { return BitConverter.ToUInt64(_StructureData, _BufferOffset + 128); } }
+		public UInt64 MaximumWorkingSetSize{ get { return BitConverter.ToUInt64(_StructureData, _BufferOffset + 136); } }
+		public UInt64 ChargedWslePages{ get { return BitConverter.ToUInt64(_StructureData, _BufferOffset + 144); } }
+		public UInt64 ActualWslePages{ get { return BitConverter.ToUInt64(_StructureData, _BufferOffset + 152); } }
+		public UInt64 WorkingSetSizeOverhead{ get { return BitConverter.ToUInt64(_StructureData, _BufferOffset + 160); } }
+		public UInt64 PeakWorkingSetSize{ get { return BitConverter.ToUInt64(_StructureData, _BufferOffset + 168); } }
+		public UInt32 HardFaultCount{ get { return BitConverter.ToUInt32(_StructureData, _BufferOffset + 176); } }
+		public UInt16 PartitionId{ get { return BitConverter.ToUInt16(_StructureData, _BufferOffset + 180); } }
+		public UInt16 Pad0{ get { return BitConverter.ToUInt16(_StructureData, _BufferOffset + 182); } }
+		public UInt64 VmWorkingSetList{ get { return BitConverter.ToUInt64(_StructureData, _BufferOffset + 184); } }
+		public UInt16 NextPageColor{ get { return BitConverter.ToUInt16(_StructureData, _BufferOffset + 192); } }
+		public UInt16 LastTrimStamp{ get { return BitConverter.ToUInt16(_StructureData, _BufferOffset + 194); } }
+		public UInt32 PageFaultCount{ get { return BitConverter.ToUInt32(_StructureData, _BufferOffset + 196); } }
+		public UInt64 TrimmedPageCount{ get { return BitConverter.ToUInt64(_StructureData, _BufferOffset + 200); } }
+		public UInt64 ForceTrimPages{ get { return BitConverter.ToUInt64(_StructureData, _BufferOffset + 208); } }
+		public _MMSUPPORT_FLAGS Flags
+		{
+			get
+			{
+				_MMSUPPORT_FLAGS returnValue = new _MMSUPPORT_FLAGS(_StructureData, _BufferOffset + 216);
+				return returnValue;
+			}
+		}
+		public UInt64 ReleasedCommitDebt{ get { return BitConverter.ToUInt64(_StructureData, _BufferOffset + 224); } }
+		public UInt64 WsSwapSupport{ get { return BitConverter.ToUInt64(_StructureData, _BufferOffset + 232); } }
+		public UInt64 CommitReAcquireFailSupport{ get { return BitConverter.ToUInt64(_StructureData, _BufferOffset + 240); } }
+	}
+	#endregion
+	#region _ALPC_PROCESS_CONTEXT
+ 
+	public class _ALPC_PROCESS_CONTEXT
+	{
+		private Byte[] _StructureData;
+		private int _BufferOffset;
+		public _ALPC_PROCESS_CONTEXT(Byte[] Buffer, int PartitionOffset)
+		{
+			_StructureData = Buffer;
+			_BufferOffset = PartitionOffset;
+		}
+		public int MxStructureSize { get { return _StructureData.Length; } }
+		public string manifest
+		{
+			get
+			{
+				return @"(
+				{
+				 ""_ALPC_PROCESS_CONTEXT"": [ 32, {
+				 ""Lock"": [ 0, [ ""_EX_PUSH_LOCK"", {}]],
+				 ""ViewListHead"": [ 8, [ ""_LIST_ENTRY"", {}]],
+				 ""PagedPoolQuotaCache"": [ 24, [ ""UInt64"", {}]] }]
+				 }
+				)";
+			}
+		}
+		public _EX_PUSH_LOCK Lock
+		{
+			get
+			{
+				_EX_PUSH_LOCK returnValue = new _EX_PUSH_LOCK(_StructureData, _BufferOffset + 0);
+				return returnValue;
+			}
+		}
+		public _LIST_ENTRY ViewListHead
+		{
+			get
+			{
+				_LIST_ENTRY returnValue = new _LIST_ENTRY(_StructureData, _BufferOffset + 8);
+				return returnValue;
+			}
+		}
+		public UInt64 PagedPoolQuotaCache{ get { return BitConverter.ToUInt64(_StructureData, _BufferOffset + 24); } }
+	}
+	#endregion
+	#region _PS_PROTECTION
+ 
+	public class _PS_PROTECTION
+	{
+		private Byte[] _StructureData;
+		private int _BufferOffset;
+		public _PS_PROTECTION(Byte[] Buffer, int PartitionOffset)
+		{
+			_StructureData = Buffer;
+			_BufferOffset = PartitionOffset;
+		}
+		public int MxStructureSize { get { return _StructureData.Length; } }
+		public string manifest
+		{
+			get
+			{
+				return @"(
+				{
+				 ""_PS_PROTECTION"": [ 1, {
+				 ""Level"": [ 0, [ ""Byte"", {}]],
+				 ""Type"": [ 0, [ ""BitField"", { ""end_bit"": 3, ""start_bit"": 0, ""target"": ""Byte"" }]],
+				 ""Audit"": [ 0, [ ""BitField"", { ""end_bit"": 4, ""start_bit"": 3, ""target"": ""Byte"" }]],
+				 ""Signer"": [ 0, [ ""BitField"", { ""end_bit"": 8, ""start_bit"": 4, ""target"": ""Byte"" }]] }]
+				 }
+				)";
+			}
+		}
+		public Byte Level{ get { return _StructureData[_BufferOffset +0]; } }
+		public Byte Type
+		{
+			get
+			{
+				// start: 0  end: 3  Mask: 0000000000000111
+				Byte value = _StructureData[_BufferOffset + 0];
+				var value2 = (value & 7) >> 0;
+				return (Byte)value2;
+			}
+		}
+		public Byte Audit
+		{
+			get
+			{
+				// start: 3  end: 4  Mask: 0000000000001000
+				Byte value = _StructureData[_BufferOffset + 0];
+				var value2 = (value & 8) >> 3;
+				return (Byte)value2;
+			}
+		}
+		public Byte Signer
+		{
+			get
+			{
+				// start: 4  end: 8  Mask: 0000000011110000
+				Byte value = _StructureData[_BufferOffset + 0];
+				var value2 = (value & 240) >> 4;
+				return (Byte)value2;
+			}
+		}
+	}
+	#endregion
+	#region _DISPATCHER_HEADER
+ 
+	public class _DISPATCHER_HEADER
+	{
+		private Byte[] _StructureData;
+		private int _BufferOffset;
+		public _DISPATCHER_HEADER(Byte[] Buffer, int PartitionOffset)
+		{
+			_StructureData = Buffer;
+			_BufferOffset = PartitionOffset;
+		}
+		public int MxStructureSize { get { return _StructureData.Length; } }
+		public string manifest
+		{
+			get
+			{
+				return @"(
+				{
+				 ""_DISPATCHER_HEADER"": [ 24, {
+				 ""Lock"": [ 0, [ ""Int32"", {}]],
+				 ""LockNV"": [ 0, [ ""Int32"", {}]],
+				 ""Type"": [ 0, [ ""Byte"", {}]],
+				 ""Signalling"": [ 1, [ ""Byte"", {}]],
+				 ""Size"": [ 2, [ ""Byte"", {}]],
+				 ""Reserved1"": [ 3, [ ""Byte"", {}]],
+				 ""TimerType"": [ 0, [ ""Byte"", {}]],
+				 ""TimerControlFlags"": [ 1, [ ""Byte"", {}]],
+				 ""Absolute"": [ 1, [ ""BitField"", { ""end_bit"": 1, ""start_bit"": 0, ""target"": ""Byte"" }]],
+				 ""Wake"": [ 1, [ ""BitField"", { ""end_bit"": 2, ""start_bit"": 1, ""target"": ""Byte"" }]],
+				 ""EncodedTolerableDelay"": [ 1, [ ""BitField"", { ""end_bit"": 8, ""start_bit"": 2, ""target"": ""Byte"" }]],
+				 ""Hand"": [ 2, [ ""Byte"", {}]],
+				 ""TimerMiscFlags"": [ 3, [ ""Byte"", {}]],
+				 ""Index"": [ 3, [ ""BitField"", { ""end_bit"": 6, ""start_bit"": 0, ""target"": ""Byte"" }]],
+				 ""Inserted"": [ 3, [ ""BitField"", { ""end_bit"": 7, ""start_bit"": 6, ""target"": ""Byte"" }]],
+				 ""Expired"": [ 3, [ ""BitField"", { ""end_bit"": 8, ""start_bit"": 7, ""target"": ""Byte"" }]],
+				 ""Timer2Type"": [ 0, [ ""Byte"", {}]],
+				 ""Timer2Flags"": [ 1, [ ""Byte"", {}]],
+				 ""Timer2Inserted"": [ 1, [ ""BitField"", { ""end_bit"": 1, ""start_bit"": 0, ""target"": ""Byte"" }]],
+				 ""Timer2Expiring"": [ 1, [ ""BitField"", { ""end_bit"": 2, ""start_bit"": 1, ""target"": ""Byte"" }]],
+				 ""Timer2CancelPending"": [ 1, [ ""BitField"", { ""end_bit"": 3, ""start_bit"": 2, ""target"": ""Byte"" }]],
+				 ""Timer2SetPending"": [ 1, [ ""BitField"", { ""end_bit"": 4, ""start_bit"": 3, ""target"": ""Byte"" }]],
+				 ""Timer2Running"": [ 1, [ ""BitField"", { ""end_bit"": 5, ""start_bit"": 4, ""target"": ""Byte"" }]],
+				 ""Timer2Disabled"": [ 1, [ ""BitField"", { ""end_bit"": 6, ""start_bit"": 5, ""target"": ""Byte"" }]],
+				 ""Timer2ReservedFlags"": [ 1, [ ""BitField"", { ""end_bit"": 8, ""start_bit"": 6, ""target"": ""Byte"" }]],
+				 ""Timer2Reserved1"": [ 2, [ ""Byte"", {}]],
+				 ""Timer2Reserved2"": [ 3, [ ""Byte"", {}]],
+				 ""QueueType"": [ 0, [ ""Byte"", {}]],
+				 ""QueueControlFlags"": [ 1, [ ""Byte"", {}]],
+				 ""Abandoned"": [ 1, [ ""BitField"", { ""end_bit"": 1, ""start_bit"": 0, ""target"": ""Byte"" }]],
+				 ""DisableIncrement"": [ 1, [ ""BitField"", { ""end_bit"": 2, ""start_bit"": 1, ""target"": ""Byte"" }]],
+				 ""QueueReservedControlFlags"": [ 1, [ ""BitField"", { ""end_bit"": 8, ""start_bit"": 2, ""target"": ""Byte"" }]],
+				 ""QueueSize"": [ 2, [ ""Byte"", {}]],
+				 ""QueueReserved"": [ 3, [ ""Byte"", {}]],
+				 ""ThreadType"": [ 0, [ ""Byte"", {}]],
+				 ""ThreadReserved"": [ 1, [ ""Byte"", {}]],
+				 ""ThreadControlFlags"": [ 2, [ ""Byte"", {}]],
+				 ""CycleProfiling"": [ 2, [ ""BitField"", { ""end_bit"": 1, ""start_bit"": 0, ""target"": ""Byte"" }]],
+				 ""CounterProfiling"": [ 2, [ ""BitField"", { ""end_bit"": 2, ""start_bit"": 1, ""target"": ""Byte"" }]],
+				 ""GroupScheduling"": [ 2, [ ""BitField"", { ""end_bit"": 3, ""start_bit"": 2, ""target"": ""Byte"" }]],
+				 ""AffinitySet"": [ 2, [ ""BitField"", { ""end_bit"": 4, ""start_bit"": 3, ""target"": ""Byte"" }]],
+				 ""Tagged"": [ 2, [ ""BitField"", { ""end_bit"": 5, ""start_bit"": 4, ""target"": ""Byte"" }]],
+				 ""EnergyProfiling"": [ 2, [ ""BitField"", { ""end_bit"": 6, ""start_bit"": 5, ""target"": ""Byte"" }]],
+				 ""ThreadReservedControlFlags"": [ 2, [ ""BitField"", { ""end_bit"": 8, ""start_bit"": 6, ""target"": ""Byte"" }]],
+				 ""DebugActive"": [ 3, [ ""Byte"", {}]],
+				 ""ActiveDR7"": [ 3, [ ""BitField"", { ""end_bit"": 1, ""start_bit"": 0, ""target"": ""Byte"" }]],
+				 ""Instrumented"": [ 3, [ ""BitField"", { ""end_bit"": 2, ""start_bit"": 1, ""target"": ""Byte"" }]],
+				 ""Minimal"": [ 3, [ ""BitField"", { ""end_bit"": 3, ""start_bit"": 2, ""target"": ""Byte"" }]],
+				 ""Reserved4"": [ 3, [ ""BitField"", { ""end_bit"": 6, ""start_bit"": 3, ""target"": ""Byte"" }]],
+				 ""UmsScheduled"": [ 3, [ ""BitField"", { ""end_bit"": 7, ""start_bit"": 6, ""target"": ""Byte"" }]],
+				 ""UmsPrimary"": [ 3, [ ""BitField"", { ""end_bit"": 8, ""start_bit"": 7, ""target"": ""Byte"" }]],
+				 ""MutantType"": [ 0, [ ""Byte"", {}]],
+				 ""MutantSize"": [ 1, [ ""Byte"", {}]],
+				 ""DpcActive"": [ 2, [ ""Byte"", {}]],
+				 ""MutantReserved"": [ 3, [ ""Byte"", {}]],
+				 ""SignalState"": [ 4, [ ""Int32"", {}]],
+				 ""WaitListHead"": [ 8, [ ""_LIST_ENTRY"", {}]] }]
+				 }
+				)";
+			}
+		}
+		public Int32 Lock{ get { return BitConverter.ToInt32(_StructureData, _BufferOffset + 0); } }
+		public Int32 LockNV{ get { return BitConverter.ToInt32(_StructureData, _BufferOffset + 0); } }
+		public Byte Type{ get { return _StructureData[_BufferOffset +0]; } }
+		public Byte Signalling{ get { return _StructureData[_BufferOffset +1]; } }
+		public Byte Size{ get { return _StructureData[_BufferOffset +2]; } }
+		public Byte Reserved1{ get { return _StructureData[_BufferOffset +3]; } }
+		public Byte TimerType{ get { return _StructureData[_BufferOffset +0]; } }
+		public Byte TimerControlFlags{ get { return _StructureData[_BufferOffset +1]; } }
+		public Byte Absolute
+		{
+			get
+			{
+				// start: 0  end: 1  Mask: 0000000000000001
+				Byte value = _StructureData[_BufferOffset + 1];
+				var value2 = (value & 1) >> 0;
+				return (Byte)value2;
+			}
+		}
+		public Byte Wake
+		{
+			get
+			{
+				// start: 1  end: 2  Mask: 0000000000000010
+				Byte value = _StructureData[_BufferOffset + 1];
+				var value2 = (value & 2) >> 1;
+				return (Byte)value2;
+			}
+		}
+		public Byte EncodedTolerableDelay
+		{
+			get
+			{
+				// start: 2  end: 8  Mask: 0000000011111100
+				Byte value = _StructureData[_BufferOffset + 1];
+				var value2 = (value & 252) >> 2;
+				return (Byte)value2;
+			}
+		}
+		public Byte Hand{ get { return _StructureData[_BufferOffset +2]; } }
+		public Byte TimerMiscFlags{ get { return _StructureData[_BufferOffset +3]; } }
+		public Byte Index
+		{
+			get
+			{
+				// start: 0  end: 6  Mask: 0000000000111111
+				Byte value = _StructureData[_BufferOffset + 3];
+				var value2 = (value & 63) >> 0;
+				return (Byte)value2;
+			}
+		}
+		public Byte Inserted
+		{
+			get
+			{
+				// start: 6  end: 7  Mask: 0000000001000000
+				Byte value = _StructureData[_BufferOffset + 3];
+				var value2 = (value & 64) >> 6;
+				return (Byte)value2;
+			}
+		}
+		public Byte Expired
+		{
+			get
+			{
+				// start: 7  end: 8  Mask: 0000000010000000
+				Byte value = _StructureData[_BufferOffset + 3];
+				var value2 = (value & 128) >> 7;
+				return (Byte)value2;
+			}
+		}
+		public Byte Timer2Type{ get { return _StructureData[_BufferOffset +0]; } }
+		public Byte Timer2Flags{ get { return _StructureData[_BufferOffset +1]; } }
+		public Byte Timer2Inserted
+		{
+			get
+			{
+				// start: 0  end: 1  Mask: 0000000000000001
+				Byte value = _StructureData[_BufferOffset + 1];
+				var value2 = (value & 1) >> 0;
+				return (Byte)value2;
+			}
+		}
+		public Byte Timer2Expiring
+		{
+			get
+			{
+				// start: 1  end: 2  Mask: 0000000000000010
+				Byte value = _StructureData[_BufferOffset + 1];
+				var value2 = (value & 2) >> 1;
+				return (Byte)value2;
+			}
+		}
+		public Byte Timer2CancelPending
+		{
+			get
+			{
+				// start: 2  end: 3  Mask: 0000000000000100
+				Byte value = _StructureData[_BufferOffset + 1];
+				var value2 = (value & 4) >> 2;
+				return (Byte)value2;
+			}
+		}
+		public Byte Timer2SetPending
+		{
+			get
+			{
+				// start: 3  end: 4  Mask: 0000000000001000
+				Byte value = _StructureData[_BufferOffset + 1];
+				var value2 = (value & 8) >> 3;
+				return (Byte)value2;
+			}
+		}
+		public Byte Timer2Running
+		{
+			get
+			{
+				// start: 4  end: 5  Mask: 0000000000010000
+				Byte value = _StructureData[_BufferOffset + 1];
+				var value2 = (value & 16) >> 4;
+				return (Byte)value2;
+			}
+		}
+		public Byte Timer2Disabled
+		{
+			get
+			{
+				// start: 5  end: 6  Mask: 0000000000100000
+				Byte value = _StructureData[_BufferOffset + 1];
+				var value2 = (value & 32) >> 5;
+				return (Byte)value2;
+			}
+		}
+		public Byte Timer2ReservedFlags
+		{
+			get
+			{
+				// start: 6  end: 8  Mask: 0000000011000000
+				Byte value = _StructureData[_BufferOffset + 1];
+				var value2 = (value & 192) >> 6;
+				return (Byte)value2;
+			}
+		}
+		public Byte Timer2Reserved1{ get { return _StructureData[_BufferOffset +2]; } }
+		public Byte Timer2Reserved2{ get { return _StructureData[_BufferOffset +3]; } }
+		public Byte QueueType{ get { return _StructureData[_BufferOffset +0]; } }
+		public Byte QueueControlFlags{ get { return _StructureData[_BufferOffset +1]; } }
+		public Byte Abandoned
+		{
+			get
+			{
+				// start: 0  end: 1  Mask: 0000000000000001
+				Byte value = _StructureData[_BufferOffset + 1];
+				var value2 = (value & 1) >> 0;
+				return (Byte)value2;
+			}
+		}
+		public Byte DisableIncrement
+		{
+			get
+			{
+				// start: 1  end: 2  Mask: 0000000000000010
+				Byte value = _StructureData[_BufferOffset + 1];
+				var value2 = (value & 2) >> 1;
+				return (Byte)value2;
+			}
+		}
+		public Byte QueueReservedControlFlags
+		{
+			get
+			{
+				// start: 2  end: 8  Mask: 0000000011111100
+				Byte value = _StructureData[_BufferOffset + 1];
+				var value2 = (value & 252) >> 2;
+				return (Byte)value2;
+			}
+		}
+		public Byte QueueSize{ get { return _StructureData[_BufferOffset +2]; } }
+		public Byte QueueReserved{ get { return _StructureData[_BufferOffset +3]; } }
+		public Byte ThreadType{ get { return _StructureData[_BufferOffset +0]; } }
+		public Byte ThreadReserved{ get { return _StructureData[_BufferOffset +1]; } }
+		public Byte ThreadControlFlags{ get { return _StructureData[_BufferOffset +2]; } }
+		public Byte CycleProfiling
+		{
+			get
+			{
+				// start: 0  end: 1  Mask: 0000000000000001
+				Byte value = _StructureData[_BufferOffset + 2];
+				var value2 = (value & 1) >> 0;
+				return (Byte)value2;
+			}
+		}
+		public Byte CounterProfiling
+		{
+			get
+			{
+				// start: 1  end: 2  Mask: 0000000000000010
+				Byte value = _StructureData[_BufferOffset + 2];
+				var value2 = (value & 2) >> 1;
+				return (Byte)value2;
+			}
+		}
+		public Byte GroupScheduling
+		{
+			get
+			{
+				// start: 2  end: 3  Mask: 0000000000000100
+				Byte value = _StructureData[_BufferOffset + 2];
+				var value2 = (value & 4) >> 2;
+				return (Byte)value2;
+			}
+		}
+		public Byte AffinitySet
+		{
+			get
+			{
+				// start: 3  end: 4  Mask: 0000000000001000
+				Byte value = _StructureData[_BufferOffset + 2];
+				var value2 = (value & 8) >> 3;
+				return (Byte)value2;
+			}
+		}
+		public Byte Tagged
+		{
+			get
+			{
+				// start: 4  end: 5  Mask: 0000000000010000
+				Byte value = _StructureData[_BufferOffset + 2];
+				var value2 = (value & 16) >> 4;
+				return (Byte)value2;
+			}
+		}
+		public Byte EnergyProfiling
+		{
+			get
+			{
+				// start: 5  end: 6  Mask: 0000000000100000
+				Byte value = _StructureData[_BufferOffset + 2];
+				var value2 = (value & 32) >> 5;
+				return (Byte)value2;
+			}
+		}
+		public Byte ThreadReservedControlFlags
+		{
+			get
+			{
+				// start: 6  end: 8  Mask: 0000000011000000
+				Byte value = _StructureData[_BufferOffset + 2];
+				var value2 = (value & 192) >> 6;
+				return (Byte)value2;
+			}
+		}
+		public Byte DebugActive{ get { return _StructureData[_BufferOffset +3]; } }
+		public Byte ActiveDR7
+		{
+			get
+			{
+				// start: 0  end: 1  Mask: 0000000000000001
+				Byte value = _StructureData[_BufferOffset + 3];
+				var value2 = (value & 1) >> 0;
+				return (Byte)value2;
+			}
+		}
+		public Byte Instrumented
+		{
+			get
+			{
+				// start: 1  end: 2  Mask: 0000000000000010
+				Byte value = _StructureData[_BufferOffset + 3];
+				var value2 = (value & 2) >> 1;
+				return (Byte)value2;
+			}
+		}
+		public Byte Minimal
+		{
+			get
+			{
+				// start: 2  end: 3  Mask: 0000000000000100
+				Byte value = _StructureData[_BufferOffset + 3];
+				var value2 = (value & 4) >> 2;
+				return (Byte)value2;
+			}
+		}
+		public Byte Reserved4
+		{
+			get
+			{
+				// start: 3  end: 6  Mask: 0000000000111000
+				Byte value = _StructureData[_BufferOffset + 3];
+				var value2 = (value & 56) >> 3;
+				return (Byte)value2;
+			}
+		}
+		public Byte UmsScheduled
+		{
+			get
+			{
+				// start: 6  end: 7  Mask: 0000000001000000
+				Byte value = _StructureData[_BufferOffset + 3];
+				var value2 = (value & 64) >> 6;
+				return (Byte)value2;
+			}
+		}
+		public Byte UmsPrimary
+		{
+			get
+			{
+				// start: 7  end: 8  Mask: 0000000010000000
+				Byte value = _StructureData[_BufferOffset + 3];
+				var value2 = (value & 128) >> 7;
+				return (Byte)value2;
+			}
+		}
+		public Byte MutantType{ get { return _StructureData[_BufferOffset +0]; } }
+		public Byte MutantSize{ get { return _StructureData[_BufferOffset +1]; } }
+		public Byte DpcActive{ get { return _StructureData[_BufferOffset +2]; } }
+		public Byte MutantReserved{ get { return _StructureData[_BufferOffset +3]; } }
+		public Int32 SignalState{ get { return BitConverter.ToInt32(_StructureData, _BufferOffset + 4); } }
+		public _LIST_ENTRY WaitListHead
+		{
+			get
+			{
+				_LIST_ENTRY returnValue = new _LIST_ENTRY(_StructureData, _BufferOffset + 8);
+				return returnValue;
+			}
+		}
+	}
+	#endregion
+	#region _KAFFINITY_EX
+ 
+	public class _KAFFINITY_EX
+	{
+		private Byte[] _StructureData;
+		private int _BufferOffset;
+		public _KAFFINITY_EX(Byte[] Buffer, int PartitionOffset)
+		{
+			_StructureData = Buffer;
+			_BufferOffset = PartitionOffset;
+		}
+		public int MxStructureSize { get { return _StructureData.Length; } }
+		public string manifest
+		{
+			get
+			{
+				return @"(
+				{
+				 ""_KAFFINITY_EX"": [ 168, {
+				 ""Count"": [ 0, [ ""UInt16"", {}]],
+				 ""Size"": [ 2, [ ""UInt16"", {}]],
+				 ""Reserved"": [ 4, [ ""UInt32"", {}]],
+				 ""Bitmap"": [ 8, [ ""Array"", { ""count"": 20, ""target"": ""UInt64"" }]] }]
+				 }
+				)";
+			}
+		}
+		public UInt16 Count{ get { return BitConverter.ToUInt16(_StructureData, _BufferOffset + 0); } }
+		public UInt16 Size{ get { return BitConverter.ToUInt16(_StructureData, _BufferOffset + 2); } }
+		public UInt32 Reserved{ get { return BitConverter.ToUInt32(_StructureData, _BufferOffset + 4); } }
+		public UInt64[] Bitmap
+		{
+			get
+			{
+				UInt64[] returnValue = new UInt64[20];
+				for(int i=0; i<20; i++ )
+					returnValue[i] = BitConverter.ToUInt64(_StructureData, (i * sizeof(UInt64)) + _BufferOffset + 8);
+				return returnValue;
+			}
+		}
+	}
+	#endregion
+	#region _SINGLE_LIST_ENTRY
+ 
+	public class _SINGLE_LIST_ENTRY
+	{
+		private Byte[] _StructureData;
+		private int _BufferOffset;
+		public _SINGLE_LIST_ENTRY(Byte[] Buffer, int PartitionOffset)
+		{
+			_StructureData = Buffer;
+			_BufferOffset = PartitionOffset;
+		}
+		public int MxStructureSize { get { return _StructureData.Length; } }
+		public string manifest
+		{
+			get
+			{
+				return @"(
+				{
+				 ""_SINGLE_LIST_ENTRY"": [ 8, {
+				 ""Next"": [ 0, [ ""Pointer"", { ""target"": ""_SINGLE_LIST_ENTRY"" }]] }]
+				 }
+				)";
+			}
+		}
+		public UInt64 Next{ get { return BitConverter.ToUInt64(_StructureData, _BufferOffset + 0); } }
+	}
+	#endregion
+	#region _KEXECUTE_OPTIONS
+ 
+	public class _KEXECUTE_OPTIONS
+	{
+		private Byte[] _StructureData;
+		private int _BufferOffset;
+		public _KEXECUTE_OPTIONS(Byte[] Buffer, int PartitionOffset)
+		{
+			_StructureData = Buffer;
+			_BufferOffset = PartitionOffset;
+		}
+		public int MxStructureSize { get { return _StructureData.Length; } }
+		public string manifest
+		{
+			get
+			{
+				return @"(
+				{
+				 ""_KEXECUTE_OPTIONS"": [ 1, {
+				 ""ExecuteDisable"": [ 0, [ ""BitField"", { ""end_bit"": 1, ""start_bit"": 0, ""target"": ""Byte"" }]],
+				 ""ExecuteEnable"": [ 0, [ ""BitField"", { ""end_bit"": 2, ""start_bit"": 1, ""target"": ""Byte"" }]],
+				 ""DisableThunkEmulation"": [ 0, [ ""BitField"", { ""end_bit"": 3, ""start_bit"": 2, ""target"": ""Byte"" }]],
+				 ""Permanent"": [ 0, [ ""BitField"", { ""end_bit"": 4, ""start_bit"": 3, ""target"": ""Byte"" }]],
+				 ""ExecuteDispatchEnable"": [ 0, [ ""BitField"", { ""end_bit"": 5, ""start_bit"": 4, ""target"": ""Byte"" }]],
+				 ""ImageDispatchEnable"": [ 0, [ ""BitField"", { ""end_bit"": 6, ""start_bit"": 5, ""target"": ""Byte"" }]],
+				 ""DisableExceptionChainValidation"": [ 0, [ ""BitField"", { ""end_bit"": 7, ""start_bit"": 6, ""target"": ""Byte"" }]],
+				 ""Spare"": [ 0, [ ""BitField"", { ""end_bit"": 8, ""start_bit"": 7, ""target"": ""Byte"" }]],
+				 ""ExecuteOptions"": [ 0, [ ""Byte"", {}]],
+				 ""ExecuteOptionsNV"": [ 0, [ ""Byte"", {}]] }]
+				 }
+				)";
+			}
+		}
+		public Byte ExecuteDisable
+		{
+			get
+			{
+				// start: 0  end: 1  Mask: 0000000000000001
+				Byte value = _StructureData[_BufferOffset + 0];
+				var value2 = (value & 1) >> 0;
+				return (Byte)value2;
+			}
+		}
+		public Byte ExecuteEnable
+		{
+			get
+			{
+				// start: 1  end: 2  Mask: 0000000000000010
+				Byte value = _StructureData[_BufferOffset + 0];
+				var value2 = (value & 2) >> 1;
+				return (Byte)value2;
+			}
+		}
+		public Byte DisableThunkEmulation
+		{
+			get
+			{
+				// start: 2  end: 3  Mask: 0000000000000100
+				Byte value = _StructureData[_BufferOffset + 0];
+				var value2 = (value & 4) >> 2;
+				return (Byte)value2;
+			}
+		}
+		public Byte Permanent
+		{
+			get
+			{
+				// start: 3  end: 4  Mask: 0000000000001000
+				Byte value = _StructureData[_BufferOffset + 0];
+				var value2 = (value & 8) >> 3;
+				return (Byte)value2;
+			}
+		}
+		public Byte ExecuteDispatchEnable
+		{
+			get
+			{
+				// start: 4  end: 5  Mask: 0000000000010000
+				Byte value = _StructureData[_BufferOffset + 0];
+				var value2 = (value & 16) >> 4;
+				return (Byte)value2;
+			}
+		}
+		public Byte ImageDispatchEnable
+		{
+			get
+			{
+				// start: 5  end: 6  Mask: 0000000000100000
+				Byte value = _StructureData[_BufferOffset + 0];
+				var value2 = (value & 32) >> 5;
+				return (Byte)value2;
+			}
+		}
+		public Byte DisableExceptionChainValidation
+		{
+			get
+			{
+				// start: 6  end: 7  Mask: 0000000001000000
+				Byte value = _StructureData[_BufferOffset + 0];
+				var value2 = (value & 64) >> 6;
+				return (Byte)value2;
+			}
+		}
+		public Byte Spare
+		{
+			get
+			{
+				// start: 7  end: 8  Mask: 0000000010000000
+				Byte value = _StructureData[_BufferOffset + 0];
+				var value2 = (value & 128) >> 7;
+				return (Byte)value2;
+			}
+		}
+		public Byte ExecuteOptions{ get { return _StructureData[_BufferOffset +0]; } }
+		public Byte ExecuteOptionsNV{ get { return _StructureData[_BufferOffset +0]; } }
+	}
+	#endregion
+	#region _KSTACK_COUNT
+ 
+	public class _KSTACK_COUNT
+	{
+		private Byte[] _StructureData;
+		private int _BufferOffset;
+		public _KSTACK_COUNT(Byte[] Buffer, int PartitionOffset)
+		{
+			_StructureData = Buffer;
+			_BufferOffset = PartitionOffset;
+		}
+		public int MxStructureSize { get { return _StructureData.Length; } }
+		public string manifest
+		{
+			get
+			{
+				return @"(
+				{
+				 ""_KSTACK_COUNT"": [ 4, {
+				 ""Value"": [ 0, [ ""Int32"", {}]],
+				 ""State"": [ 0, [ ""BitField"", { ""end_bit"": 3, ""start_bit"": 0, ""target"": ""UInt32"" }]],
+				 ""StackCount"": [ 0, [ ""BitField"", { ""end_bit"": 32, ""start_bit"": 3, ""target"": ""UInt32"" }]] }]
+				 }
+				)";
+			}
+		}
+		public Int32 Value{ get { return BitConverter.ToInt32(_StructureData, _BufferOffset + 0); } }
+		public UInt32 State
+		{
+			get
+			{
+				// start: 0  end: 3  Mask: 0000000000000111
+				var value = BitConverter.ToUInt32(_StructureData, _BufferOffset + 0);
+				var value2 = (value & 7) >> 0;
+				return (UInt32)value2;
+			}
+		}
+		public UInt32 StackCount
+		{
+			get
+			{
+				// start: 3  end: 32  Mask: 11111111111111111111111111111000
+				var value = BitConverter.ToUInt32(_StructureData, _BufferOffset + 0);
+				var value2 = (value & 4294967288) >> 3;
+				return (UInt32)value2;
+			}
+		}
+	}
+	#endregion
+	#region _KGDTENTRY64
+ 
+	public class _KGDTENTRY64
+	{
+		private Byte[] _StructureData;
+		private int _BufferOffset;
+		public _KGDTENTRY64(Byte[] Buffer, int PartitionOffset)
+		{
+			_StructureData = Buffer;
+			_BufferOffset = PartitionOffset;
+		}
+		public int MxStructureSize { get { return _StructureData.Length; } }
+		public string manifest
+		{
+			get
+			{
+				return @"(
+				{
+				 ""_KGDTENTRY64"": [ 16, {
+				 ""LimitLow"": [ 0, [ ""UInt16"", {}]],
+				 ""BaseLow"": [ 2, [ ""UInt16"", {}]],
+				 ""Bytes"": [ 4, [ ""_UNNAMED_29952"", {}]],
+				 ""Bits"": [ 4, [ ""_UNNAMED_29954"", {}]],
+				 ""BaseUpper"": [ 8, [ ""UInt32"", {}]],
+				 ""MustBeZero"": [ 12, [ ""UInt32"", {}]],
+				 ""DataLow"": [ 0, [ ""Int64"", {}]],
+				 ""DataHigh"": [ 8, [ ""Int64"", {}]] }]
+				 }
+				)";
+			}
+		}
+		public UInt16 LimitLow{ get { return BitConverter.ToUInt16(_StructureData, _BufferOffset + 0); } }
+		public UInt16 BaseLow{ get { return BitConverter.ToUInt16(_StructureData, _BufferOffset + 2); } }
+		public _UNNAMED_29952 Bytes
+		{
+			get
+			{
+				_UNNAMED_29952 returnValue = new _UNNAMED_29952(_StructureData, _BufferOffset + 4);
+				return returnValue;
+			}
+		}
+		public _UNNAMED_29954 Bits
+		{
+			get
+			{
+				_UNNAMED_29954 returnValue = new _UNNAMED_29954(_StructureData, _BufferOffset + 4);
+				return returnValue;
+			}
+		}
+		public UInt32 BaseUpper{ get { return BitConverter.ToUInt32(_StructureData, _BufferOffset + 8); } }
+		public UInt32 MustBeZero{ get { return BitConverter.ToUInt32(_StructureData, _BufferOffset + 12); } }
+		public Int64 DataLow{ get { return BitConverter.ToInt64(_StructureData, _BufferOffset + 0); } }
+		public Int64 DataHigh{ get { return BitConverter.ToInt64(_StructureData, _BufferOffset + 8); } }
+	}
+	#endregion
+	#region _UNNAMED_29952
+ 
+	public class _UNNAMED_29952
+	{
+		private Byte[] _StructureData;
+		private int _BufferOffset;
+		public _UNNAMED_29952(Byte[] Buffer, int PartitionOffset)
+		{
+			_StructureData = Buffer;
+			_BufferOffset = PartitionOffset;
+		}
+		public int MxStructureSize { get { return _StructureData.Length; } }
+		public string manifest
+		{
+			get
+			{
+				return @"(
+				{
+				 ""_UNNAMED_29952"": [ 4, {
+				 ""BaseMiddle"": [ 0, [ ""Byte"", {}]],
+				 ""Flags1"": [ 1, [ ""Byte"", {}]],
+				 ""Flags2"": [ 2, [ ""Byte"", {}]],
+				 ""BaseHigh"": [ 3, [ ""Byte"", {}]] }]
+				 }
+				)";
+			}
+		}
+		public Byte BaseMiddle{ get { return _StructureData[_BufferOffset +0]; } }
+		public Byte Flags1{ get { return _StructureData[_BufferOffset +1]; } }
+		public Byte Flags2{ get { return _StructureData[_BufferOffset +2]; } }
+		public Byte BaseHigh{ get { return _StructureData[_BufferOffset +3]; } }
+	}
+	#endregion
+	#region _FAST_MUTEX
+ 
+	public class _FAST_MUTEX
+	{
+		private Byte[] _StructureData;
+		private int _BufferOffset;
+		public _FAST_MUTEX(Byte[] Buffer, int PartitionOffset)
+		{
+			_StructureData = Buffer;
+			_BufferOffset = PartitionOffset;
+		}
+		public int MxStructureSize { get { return _StructureData.Length; } }
+		public string manifest
+		{
+			get
+			{
+				return @"(
+				{
+				 ""_FAST_MUTEX"": [ 56, {
+				 ""Count"": [ 0, [ ""Int32"", {}]],
+				 ""Owner"": [ 8, [ ""Pointer"", { ""target"": ""void"" }]],
+				 ""Contention"": [ 16, [ ""UInt32"", {}]],
+				 ""Event"": [ 24, [ ""_KEVENT"", {}]],
+				 ""OldIrql"": [ 48, [ ""UInt32"", {}]] }]
+				 }
+				)";
+			}
+		}
+		public Int32 Count{ get { return BitConverter.ToInt32(_StructureData, _BufferOffset + 0); } }
+		public UInt64 Owner{ get { return BitConverter.ToUInt64(_StructureData, _BufferOffset + 8); } }
+		public UInt32 Contention{ get { return BitConverter.ToUInt32(_StructureData, _BufferOffset + 16); } }
+		public _KEVENT Event
+		{
+			get
+			{
+				_KEVENT returnValue = new _KEVENT(_StructureData, _BufferOffset + 24);
+				return returnValue;
+			}
+		}
+		public UInt32 OldIrql{ get { return BitConverter.ToUInt32(_StructureData, _BufferOffset + 48); } }
+	}
+	#endregion
+	#region _UNNAMED_29954
+ 
+	public class _UNNAMED_29954
+	{
+		private Byte[] _StructureData;
+		private int _BufferOffset;
+		public _UNNAMED_29954(Byte[] Buffer, int PartitionOffset)
+		{
+			_StructureData = Buffer;
+			_BufferOffset = PartitionOffset;
+		}
+		public int MxStructureSize { get { return _StructureData.Length; } }
+		public string manifest
+		{
+			get
+			{
+				return @"(
+				{
+				 ""_UNNAMED_29954"": [ 4, {
+				 ""BaseMiddle"": [ 0, [ ""BitField"", { ""end_bit"": 8, ""start_bit"": 0, ""target"": ""UInt32"" }]],
+				 ""Type"": [ 0, [ ""BitField"", { ""end_bit"": 13, ""start_bit"": 8, ""target"": ""UInt32"" }]],
+				 ""Dpl"": [ 0, [ ""BitField"", { ""end_bit"": 15, ""start_bit"": 13, ""target"": ""UInt32"" }]],
+				 ""Present"": [ 0, [ ""BitField"", { ""end_bit"": 16, ""start_bit"": 15, ""target"": ""UInt32"" }]],
+				 ""LimitHigh"": [ 0, [ ""BitField"", { ""end_bit"": 20, ""start_bit"": 16, ""target"": ""UInt32"" }]],
+				 ""System"": [ 0, [ ""BitField"", { ""end_bit"": 21, ""start_bit"": 20, ""target"": ""UInt32"" }]],
+				 ""LongMode"": [ 0, [ ""BitField"", { ""end_bit"": 22, ""start_bit"": 21, ""target"": ""UInt32"" }]],
+				 ""DefaultBig"": [ 0, [ ""BitField"", { ""end_bit"": 23, ""start_bit"": 22, ""target"": ""UInt32"" }]],
+				 ""Granularity"": [ 0, [ ""BitField"", { ""end_bit"": 24, ""start_bit"": 23, ""target"": ""UInt32"" }]],
+				 ""BaseHigh"": [ 0, [ ""BitField"", { ""end_bit"": 32, ""start_bit"": 24, ""target"": ""UInt32"" }]] }]
+				 }
+				)";
+			}
+		}
+		public UInt32 BaseMiddle
+		{
+			get
+			{
+				// start: 0  end: 8  Mask: 0000000011111111
+				var value = BitConverter.ToUInt32(_StructureData, _BufferOffset + 0);
+				var value2 = (value & 255) >> 0;
+				return (UInt32)value2;
+			}
+		}
+		public UInt32 Type
+		{
+			get
+			{
+				// start: 8  end: 13  Mask: 0001111100000000
+				var value = BitConverter.ToUInt32(_StructureData, _BufferOffset + 0);
+				var value2 = (value & 7936) >> 8;
+				return (UInt32)value2;
+			}
+		}
+		public UInt32 Dpl
+		{
+			get
+			{
+				// start: 13  end: 15  Mask: 0110000000000000
+				var value = BitConverter.ToUInt32(_StructureData, _BufferOffset + 0);
+				var value2 = (value & 24576) >> 13;
+				return (UInt32)value2;
+			}
+		}
+		public UInt32 Present
+		{
+			get
+			{
+				// start: 15  end: 16  Mask: 1000000000000000
+				var value = BitConverter.ToUInt32(_StructureData, _BufferOffset + 0);
+				var value2 = (value & 32768) >> 15;
+				return (UInt32)value2;
+			}
+		}
+		public UInt32 LimitHigh
+		{
+			get
+			{
+				// start: 16  end: 20  Mask: 11110000000000000000
+				var value = BitConverter.ToUInt32(_StructureData, _BufferOffset + 0);
+				var value2 = (value & 983040) >> 16;
+				return (UInt32)value2;
+			}
+		}
+		public UInt32 System
+		{
+			get
+			{
+				// start: 20  end: 21  Mask: 100000000000000000000
+				var value = BitConverter.ToUInt32(_StructureData, _BufferOffset + 0);
+				var value2 = (value & 1048576) >> 20;
+				return (UInt32)value2;
+			}
+		}
+		public UInt32 LongMode
+		{
+			get
+			{
+				// start: 21  end: 22  Mask: 1000000000000000000000
+				var value = BitConverter.ToUInt32(_StructureData, _BufferOffset + 0);
+				var value2 = (value & 2097152) >> 21;
+				return (UInt32)value2;
+			}
+		}
+		public UInt32 DefaultBig
+		{
+			get
+			{
+				// start: 22  end: 23  Mask: 10000000000000000000000
+				var value = BitConverter.ToUInt32(_StructureData, _BufferOffset + 0);
+				var value2 = (value & 4194304) >> 22;
+				return (UInt32)value2;
+			}
+		}
+		public UInt32 Granularity
+		{
+			get
+			{
+				// start: 23  end: 24  Mask: 100000000000000000000000
+				var value = BitConverter.ToUInt32(_StructureData, _BufferOffset + 0);
+				var value2 = (value & 8388608) >> 23;
+				return (UInt32)value2;
+			}
+		}
+		public UInt32 BaseHigh
+		{
+			get
+			{
+				// start: 24  end: 32  Mask: 11111111000000000000000000000000
+				var value = BitConverter.ToUInt32(_StructureData, _BufferOffset + 0);
+				var value2 = (value & 4278190080) >> 24;
+				return (UInt32)value2;
+			}
+		}
+	}
+	#endregion
+	#region _MMSUPPORT_FLAGS
+ 
+	public class _MMSUPPORT_FLAGS
+	{
+		private Byte[] _StructureData;
+		private int _BufferOffset;
+		public _MMSUPPORT_FLAGS(Byte[] Buffer, int PartitionOffset)
+		{
+			_StructureData = Buffer;
+			_BufferOffset = PartitionOffset;
+		}
+		public int MxStructureSize { get { return _StructureData.Length; } }
+		public string manifest
+		{
+			get
+			{
+				return @"(
+				{
+				 ""_MMSUPPORT_FLAGS"": [ 4, {
+				 ""WorkingSetType"": [ 0, [ ""BitField"", { ""end_bit"": 3, ""start_bit"": 0, ""target"": ""Byte"" }]],
+				 ""ForceCredits"": [ 0, [ ""BitField"", { ""end_bit"": 6, ""start_bit"": 3, ""target"": ""Byte"" }]],
+				 ""MaximumWorkingSetHard"": [ 0, [ ""BitField"", { ""end_bit"": 7, ""start_bit"": 6, ""target"": ""Byte"" }]],
+				 ""MinimumWorkingSetHard"": [ 0, [ ""BitField"", { ""end_bit"": 8, ""start_bit"": 7, ""target"": ""Byte"" }]],
+				 ""SessionMaster"": [ 1, [ ""BitField"", { ""end_bit"": 1, ""start_bit"": 0, ""target"": ""Byte"" }]],
+				 ""TrimmerState"": [ 1, [ ""BitField"", { ""end_bit"": 3, ""start_bit"": 1, ""target"": ""Byte"" }]],
+				 ""Reserved"": [ 1, [ ""BitField"", { ""end_bit"": 4, ""start_bit"": 3, ""target"": ""Byte"" }]],
+				 ""PageStealers"": [ 1, [ ""BitField"", { ""end_bit"": 8, ""start_bit"": 4, ""target"": ""Byte"" }]],
+				 ""MemoryPriority"": [ 2, [ ""Byte"", {}]],
+				 ""WsleDeleted"": [ 3, [ ""BitField"", { ""end_bit"": 1, ""start_bit"": 0, ""target"": ""Byte"" }]],
+				 ""VmExiting"": [ 3, [ ""BitField"", { ""end_bit"": 2, ""start_bit"": 1, ""target"": ""Byte"" }]],
+				 ""ExpansionFailed"": [ 3, [ ""BitField"", { ""end_bit"": 3, ""start_bit"": 2, ""target"": ""Byte"" }]],
+				 ""SvmEnabled"": [ 3, [ ""BitField"", { ""end_bit"": 4, ""start_bit"": 3, ""target"": ""Byte"" }]],
+				 ""ForceAge"": [ 3, [ ""BitField"", { ""end_bit"": 5, ""start_bit"": 4, ""target"": ""Byte"" }]],
+				 ""NewMaximum"": [ 3, [ ""BitField"", { ""end_bit"": 6, ""start_bit"": 5, ""target"": ""Byte"" }]],
+				 ""CommitReleaseState"": [ 3, [ ""BitField"", { ""end_bit"": 8, ""start_bit"": 6, ""target"": ""Byte"" }]] }]
+				 }
+				)";
+			}
+		}
+		public Byte WorkingSetType
+		{
+			get
+			{
+				// start: 0  end: 3  Mask: 0000000000000111
+				Byte value = _StructureData[_BufferOffset + 0];
+				var value2 = (value & 7) >> 0;
+				return (Byte)value2;
+			}
+		}
+		public Byte ForceCredits
+		{
+			get
+			{
+				// start: 3  end: 6  Mask: 0000000000111000
+				Byte value = _StructureData[_BufferOffset + 0];
+				var value2 = (value & 56) >> 3;
+				return (Byte)value2;
+			}
+		}
+		public Byte MaximumWorkingSetHard
+		{
+			get
+			{
+				// start: 6  end: 7  Mask: 0000000001000000
+				Byte value = _StructureData[_BufferOffset + 0];
+				var value2 = (value & 64) >> 6;
+				return (Byte)value2;
+			}
+		}
+		public Byte MinimumWorkingSetHard
+		{
+			get
+			{
+				// start: 7  end: 8  Mask: 0000000010000000
+				Byte value = _StructureData[_BufferOffset + 0];
+				var value2 = (value & 128) >> 7;
+				return (Byte)value2;
+			}
+		}
+		public Byte SessionMaster
+		{
+			get
+			{
+				// start: 0  end: 1  Mask: 0000000000000001
+				Byte value = _StructureData[_BufferOffset + 1];
+				var value2 = (value & 1) >> 0;
+				return (Byte)value2;
+			}
+		}
+		public Byte TrimmerState
+		{
+			get
+			{
+				// start: 1  end: 3  Mask: 0000000000000110
+				Byte value = _StructureData[_BufferOffset + 1];
+				var value2 = (value & 6) >> 1;
+				return (Byte)value2;
+			}
+		}
+		public Byte Reserved
+		{
+			get
+			{
+				// start: 3  end: 4  Mask: 0000000000001000
+				Byte value = _StructureData[_BufferOffset + 1];
+				var value2 = (value & 8) >> 3;
+				return (Byte)value2;
+			}
+		}
+		public Byte PageStealers
+		{
+			get
+			{
+				// start: 4  end: 8  Mask: 0000000011110000
+				Byte value = _StructureData[_BufferOffset + 1];
+				var value2 = (value & 240) >> 4;
+				return (Byte)value2;
+			}
+		}
+		public Byte MemoryPriority{ get { return _StructureData[_BufferOffset +2]; } }
+		public Byte WsleDeleted
+		{
+			get
+			{
+				// start: 0  end: 1  Mask: 0000000000000001
+				Byte value = _StructureData[_BufferOffset + 3];
+				var value2 = (value & 1) >> 0;
+				return (Byte)value2;
+			}
+		}
+		public Byte VmExiting
+		{
+			get
+			{
+				// start: 1  end: 2  Mask: 0000000000000010
+				Byte value = _StructureData[_BufferOffset + 3];
+				var value2 = (value & 2) >> 1;
+				return (Byte)value2;
+			}
+		}
+		public Byte ExpansionFailed
+		{
+			get
+			{
+				// start: 2  end: 3  Mask: 0000000000000100
+				Byte value = _StructureData[_BufferOffset + 3];
+				var value2 = (value & 4) >> 2;
+				return (Byte)value2;
+			}
+		}
+		public Byte SvmEnabled
+		{
+			get
+			{
+				// start: 3  end: 4  Mask: 0000000000001000
+				Byte value = _StructureData[_BufferOffset + 3];
+				var value2 = (value & 8) >> 3;
+				return (Byte)value2;
+			}
+		}
+		public Byte ForceAge
+		{
+			get
+			{
+				// start: 4  end: 5  Mask: 0000000000010000
+				Byte value = _StructureData[_BufferOffset + 3];
+				var value2 = (value & 16) >> 4;
+				return (Byte)value2;
+			}
+		}
+		public Byte NewMaximum
+		{
+			get
+			{
+				// start: 5  end: 6  Mask: 0000000000100000
+				Byte value = _StructureData[_BufferOffset + 3];
+				var value2 = (value & 32) >> 5;
+				return (Byte)value2;
+			}
+		}
+		public Byte CommitReleaseState
+		{
+			get
+			{
+				// start: 6  end: 8  Mask: 0000000011000000
+				Byte value = _StructureData[_BufferOffset + 3];
+				var value2 = (value & 192) >> 6;
+				return (Byte)value2;
+			}
+		}
+	}
+	#endregion
+	#region _KEVENT
+ 
+	public class _KEVENT
+	{
+		private Byte[] _StructureData;
+		private int _BufferOffset;
+		public _KEVENT(Byte[] Buffer, int PartitionOffset)
+		{
+			_StructureData = Buffer;
+			_BufferOffset = PartitionOffset;
+		}
+		public int MxStructureSize { get { return _StructureData.Length; } }
+		public string manifest
+		{
+			get
+			{
+				return @"(
+				{
+				 ""_KEVENT"": [ 24, {
+				 ""Header"": [ 0, [ ""_DISPATCHER_HEADER"", {}]] }]
+				 }
+				)";
+			}
+		}
+		public _DISPATCHER_HEADER Header
+		{
+			get
+			{
+				_DISPATCHER_HEADER returnValue = new _DISPATCHER_HEADER(_StructureData, _BufferOffset + 0);
+				return returnValue;
+			}
+		}
 	}
 	#endregion
 }
