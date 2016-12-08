@@ -1,6 +1,7 @@
 ﻿using Dia2Lib;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 
 namespace Pdb_Magician
@@ -31,7 +32,17 @@ namespace Pdb_Magician
                         enumerator.values = new SubEnumerator[children.count];
                         int j = 0;
                         if (enumerator.name.Contains("-"))
-                            continue;
+                        {
+                            if (enumerator.name.StartsWith("<unnamed"))
+                            {
+                                enumerator.name = enumerator.name.ToUpper().Replace("-", "_").Replace("<", "_").Replace(">", "");
+                            }
+                            else
+                            {
+                                enumerator.name = enumerator.name.Replace("-", "_");
+                            }
+
+                        }
                         if (done.Contains(enumerator.name))
                             continue;
                         done.Add(enumerator.name);

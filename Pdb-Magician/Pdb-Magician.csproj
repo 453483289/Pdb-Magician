@@ -52,6 +52,7 @@
     <Compile Include="BaseType.cs" />
     <Compile Include="Constants.cs" />
     <Compile Include="Enumeration.cs" />
+    <Compile Include="Enumerator.cs" />
     <Compile Include="Enums.cs" />
     <Compile Include="ExportHelper.cs" />
     <Compile Include="FetchSymbolFile.cs" />

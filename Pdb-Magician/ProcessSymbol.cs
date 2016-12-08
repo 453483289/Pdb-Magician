@@ -43,6 +43,8 @@ namespace Pdb_Magician
             // process each child
             FunctionRecord fr;
             Debug.WriteLine("PROCESSING: " + structureName);
+            if (structureName == "_UNNAMED_enum-KTMOH_CommitTransaction_Result")
+                Debug.WriteLine("");
             foreach (IDiaSymbol child in children)
             {
                 fr = ProcessChild(child);
@@ -50,10 +52,19 @@ namespace Pdb_Magician
             }
             foreach (FunctionRecord entry in entries)
             {
-                if (entry.type.StartsWith("_") && structureName != entry.type && !_doneList.Contains(entry.type) && !_todoList.Contains(entry.type) && !entry.type.StartsWith("_UNNAMED"))
+                // if (entry.type.StartsWith("_") && structureName != entry.type && !_doneList.Contains(entry.type) && !_todoList.Contains(entry.type) && !entry.type.StartsWith("_UNNAMED"))
+                if (!entry.isBuiltinType && structureName != entry.type && !_doneList.Contains(entry.type) && !_todoList.Contains(entry.type) && !entry.type.StartsWith("_UNNAMED"))
                 {
-                    _todoList.Add(entry.type);
-                    Debug.WriteLine("Adding: " + entry.type);
+                    if (entry.isArray)
+                    {
+                        _todoList.Add(entry.arrayType);
+                        Debug.WriteLine("Adding: " + entry.arrayType);
+                    }
+                    else
+                    {
+                        _todoList.Add(entry.type);
+                        Debug.WriteLine("Adding: " + entry.type);
+                    }
                 }
             }
             string[] manifestParts = TidyManifest(structureName);
@@ -95,16 +106,21 @@ namespace Pdb_Magician
             Symbol c = new Symbol(child);
             Members member = new Members(c);
             Symbol grandChild = c.InspectType();
-            if ("Reserved" == c.Name)
+            Symbol greatGrandChild = grandChild.InspectType();
+            if ("Locations" == c.Name)
             {
                 Debug.WriteLine("");
             }
 
             // I'm specifically looking for the unnamed types here since this is the best opportunity
             // the record where they are and queue them up for processing
-            if (grandChild.Name != null && grandChild.Name.StartsWith("<unnamed-"))
+            if (grandChild.Name != null && grandChild.Kind != SymbolKind.Enum && grandChild.Name.StartsWith("<unnamed-"))
             {
                 _todoSymbolList.Add(grandChild);
+            }
+            if (greatGrandChild.RootSymbol != null && greatGrandChild.Kind != SymbolKind.Enum && greatGrandChild.Name != null && greatGrandChild.Name.StartsWith("<unnamed-"))
+            {
+                _todoSymbolList.Add(greatGrandChild);
             }
             // create a FunctionRecord helper
             FunctionRecord fr = new FunctionRecord(c, member, grandChild, _pointerSize);
@@ -129,8 +145,14 @@ namespace Pdb_Magician
                 Debug.WriteLine("");
             }
             fr.type = fr.friendlySymbolType;
+            if(fr.isEnum)
+            {
+                AddEnumToAccessBlock(fr);
+                AddEnumToManifest(fr);
+            }
             // am I pointing to another structure which should always begin with an underscore (I hope)
-            if (fr.friendlySymbolType.StartsWith("_"))
+            // else if (fr.friendlySymbolType.StartsWith("_"))
+            else if (!fr.isBuiltinType && !fr.isArray)
             {
                 AddStructureToAccessBlock(fr);
                 AddStructureToManifest(fr);
@@ -138,7 +160,7 @@ namespace Pdb_Magician
             else
             {
                 // am I dealing with an array of some kind?
-                if (fr.isArray)
+                if (fr.isArray || fr.isMultiDimensionalArray)
                 {
                     AddArrayToAccessBlock(fr);
                     AddArrayToManifest(fr);
@@ -178,6 +200,17 @@ namespace Pdb_Magician
             AddBitfieldToManifest(fr);
         }
         #region MANIFEST
+        private void AddEnumToManifest(FunctionRecord fr)
+        {
+            Dictionary<string, object> loaded = new Dictionary<string, object>();
+            loaded.Add("enum_name", fr.enumName);
+            loaded.Add("target", fr.enumTarget);
+            //if (fr.targetArg != "")
+            //    loaded.Add("targetType", fr.targetArg);
+            JArray section = GetJsonSection("Enumeration", fr.offset, loaded);
+            _manifestRootNodes.Add(new JProperty(fr.name, section));
+
+        }
         private void CreateNewManifest(int structureLength)
         {
             _manifestRootNodes = new JObject();
@@ -201,13 +234,44 @@ namespace Pdb_Magician
         }
         private void AddArrayToManifest(FunctionRecord fr)
         {
-            Dictionary<string, object> loaded = new Dictionary<string, object>();
-            loaded.Add("count", fr.arrayCount);
-            loaded.Add("target", fr.arrayType);
-            if(fr.targetArg != "")
-                loaded.Add("targetType", fr.targetArg);
-            JArray section = GetJsonSection("Array", fr.offset, loaded);
-            _manifestRootNodes.Add(new JProperty(fr.name, section));
+            if (fr.name == "Cycles")
+                Debug.WriteLine("");
+            if (fr.arrayTarget == SymbolKind.BaseType)
+            {
+                Dictionary<string, object> loaded = new Dictionary<string, object>();
+                loaded.Add("count", fr.arrayCount);
+                loaded.Add("target", fr.arrayType);
+                if (fr.targetArg != "")
+                    loaded.Add("targetType", fr.targetArg);
+                JArray section = GetJsonSection("Array", fr.offset, loaded);
+                _manifestRootNodes.Add(new JProperty(fr.name, section));
+            }
+            else if (fr.arrayTarget == SymbolKind.Enum)
+            {
+                Dictionary<string, object> inner = new Dictionary<string, object>();
+                inner.Add("enum_name", fr.enumName);
+                inner.Add("target", fr.enumTarget);
+                Dictionary<string, object> loaded = new Dictionary<string, object>();
+                loaded.Add("size", fr.arrayCount * fr.enumLength);
+                loaded.Add("target", "Enumeration");
+                loaded.Add("target_args", inner);
+                JArray section = GetJsonSection("Array", fr.offset, loaded);
+                _manifestRootNodes.Add(new JProperty(fr.name, section));
+
+            }
+            else if(fr.isMultiDimensionalArray)
+            {
+                Dictionary<string, object> inner = new Dictionary<string, object>();
+                inner.Add("count", fr.arrayCount);
+                inner.Add("target", fr.arrayType);
+                Dictionary<string, object> loaded = new Dictionary<string, object>();
+                loaded.Add("size", fr.arraySize);
+                loaded.Add("target", "Array");
+                loaded.Add("target_args", inner);
+                JArray section = GetJsonSection("Array", fr.offset, loaded);
+                _manifestRootNodes.Add(new JProperty(fr.name, section));
+
+            }
         }
         private void AddPointerToManifest(FunctionRecord fr)
         {
@@ -242,6 +306,10 @@ namespace Pdb_Magician
         }
         #endregion
         #region ACCESS BLOCK
+        private void AddEnumToAccessBlock(FunctionRecord fr)
+        {
+            _accessBlock.Add("public " + fr.friendlySymbolType + " " + fr.name + " { get { return (" + fr.friendlySymbolType + ")BitConverter.To" + fr.enumTarget + "(_StructureData, _BufferOffset + " + fr.offset + "); } }");
+        }
         private void AddBitfieldToAccessBlock(FunctionRecord fr)
         {
             int max = 16 > fr.endBit ? 16 : fr.endBit;
@@ -274,19 +342,57 @@ namespace Pdb_Magician
         }
         private void AddArrayToAccessBlock(FunctionRecord fr)
         {
+            if (fr.name == "Cycles")
+                Debug.WriteLine("");
+
             _accessBlock.Add("public " + fr.structureType + " " + fr.name);
             _accessBlock.Add("{");
             _accessBlock.Add("\tget");
             _accessBlock.Add("\t{");
             _accessBlock.Add("\t\t" + fr.structureType + " returnValue = new " + fr.type + ";");
-            _accessBlock.Add("\t\tfor(int i=0; i<" + fr.arrayCount + "; i++ )");
-            if (fr.arrayType == "Byte")
-                _accessBlock.Add("\t\t\treturnValue[i] = _StructureData[i + _BufferOffset + " + fr.offset + "];");
-            else
-                _accessBlock.Add("\t\t\treturnValue[i] = BitConverter.To" + fr.arrayType + "(_StructureData, (i * sizeof(" + fr.arrayType + ")) + _BufferOffset + " + fr.offset + ");");
+
+            if (fr.arrayTarget == SymbolKind.BaseType)
+            {
+                if (!fr.isBuiltinType)
+                    _accessBlock.Add("\t\tint size = returnValue[0].MxStructureSize;");
+                _accessBlock.Add("\t\tfor(int i=0; i<" + fr.arrayCount + "; i++ )");
+                if (!fr.isBuiltinType)
+                    _accessBlock.Add("\t\t\treturnValue[i] = new " + fr.arrayType + "(_StructureData, (i * size) + _BufferOffset + " + fr.offset + ");");
+                else if (fr.arrayType == "Byte")
+                    _accessBlock.Add("\t\t\treturnValue[i] = _StructureData[i + _BufferOffset + " + fr.offset + "];");
+                else
+                    _accessBlock.Add("\t\t\treturnValue[i] = BitConverter.To" + fr.arrayType + "(_StructureData, (i * sizeof(" + fr.arrayType + ")) + _BufferOffset + " + fr.offset + ");");
+            }
+            else if (fr.arrayTarget == SymbolKind.Enum)
+            {
+                _accessBlock.Add("\t\tint size = " + fr.enumLength + ";");
+                _accessBlock.Add("\t\tfor(int i=0; i<" + fr.arrayCount + "; i++ )");
+                _accessBlock.Add("\t\t\treturnValue[i] = (" + fr.arrayType + ")BitConverter.To" + fr.enumTarget + "(_StructureData, (i * size) + _BufferOffset + " + fr.offset + ");");
+
+            }
+            else if (fr.arrayTarget == SymbolKind.UDT)
+            {
+                _accessBlock.Add("\t\tint size = returnValue[0].MxStructureSize;");
+                _accessBlock.Add("\t\tfor(int i=0; i<" + fr.arrayCount + "; i++ )");
+                _accessBlock.Add("\t\t\treturnValue[i] = new " + fr.arrayType + "(_StructureData, (i * size) + _BufferOffset + " + fr.offset + ");");
+            }
+            else if(fr.isMultiDimensionalArray)
+            {
+                if (!fr.isBuiltinType)
+                    _accessBlock.Add("\t\tint size = returnValue[0].MxStructureSize;");
+                else
+                    _accessBlock.Add("\t\tint size = " + fr.enumLength + ";");
+                _accessBlock.Add("\t\tfor(int i=0; i<" + fr.enumLength + "; i++ )");
+                if (!fr.isBuiltinType)
+                    _accessBlock.Add("\t\t\treturnValue[i] = new " + fr.arrayType + "(_StructureData, (i * size) + _BufferOffset + " + fr.offset + ");");
+                else
+                    _accessBlock.Add("\t\t\treturnValue[i] = (" + fr.arrayType + ")BitConverter.To" + fr.arrayType + "(_StructureData, (i * size) + _BufferOffset + " + fr.offset + ");");
+
+            }
             _accessBlock.Add("\t\treturn returnValue;");
             _accessBlock.Add("\t}");
             _accessBlock.Add("}");
+
         }
         private void AddByteTypeToAccessBlock(FunctionRecord fr)
         {
@@ -294,7 +400,7 @@ namespace Pdb_Magician
         }
         private void AddTypeToAccessBlock(FunctionRecord fr)
         {
-            _accessBlock.Add("public " + fr.friendlySymbolType + " " + fr.name + "{ get { return BitConverter.To" + fr.friendlySymbolType + "(_StructureData, _BufferOffset + " + fr.offset + "); } }");
+            _accessBlock.Add("public " + fr.friendlySymbolType + " " + fr.name + " { get { return BitConverter.To" + fr.friendlySymbolType + "(_StructureData, _BufferOffset + " + fr.offset + "); } }");
         }
         #endregion
         /// <summary>
@@ -680,6 +786,7 @@ namespace Pdb_Magician
         {
             JArray j = new JArray();
             JArray inner = new JArray();
+            JObject innerInner = new JObject();
             JObject o = new JObject();
             if (members != null)
             {
@@ -689,7 +796,12 @@ namespace Pdb_Magician
                     if (secondLevel == null)
                         o.Add((new JProperty(kvp.Key, kvp.Value)));
                     else
-                    {
+                    {                        
+                        foreach (KeyValuePair<string, object> kvpInner in secondLevel)
+                        {
+                            innerInner.Add(new JProperty(kvpInner.Key, kvpInner.Value));
+                        }
+                        o.Add((new JProperty("target_args", innerInner)));
                         // turn the dictionary into another JArray and add it to o.Add in place of the kvp.value??
                     }
                 }

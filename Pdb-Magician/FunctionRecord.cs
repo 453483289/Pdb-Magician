@@ -20,31 +20,55 @@ namespace Pdb_Magician
         public bool isPointer;
         public bool isBitField = false;
         public bool isArray = false;
+        public bool isEnum = false;
+        public bool isBuiltinType = false;
+        public bool isMultiDimensionalArray = false;
         private int _pointerSize;
         public UInt64 bitMask;
         public string arrayType;
         public int arrayCount;
+        public int arraySize;
+        public int enumLength;
         public string targetArg = "";
+        public string enumName = "";
+        public string enumTarget = "";
+        public SymbolKind arrayTarget;
 
         public FunctionRecord(Symbol child, Members member, Symbol grandChild, int pointerSize)
         {
+            if (child.Name == "Cycles")
+                Debug.WriteLine("");
+
             _pointerSize = pointerSize;
             symbolType = GetSymbolType(grandChild.RootSymbol);
             friendlySymbolType = GetUsefulSymbolType(symbolType);
+            Symbol greatGrandChild = grandChild.InspectType();
             isPointer = symbolType.EndsWith("*");
+            isEnum = (grandChild.Kind == SymbolKind.Enum);
+            isBuiltinType = TestType(friendlySymbolType);
             offset = member.offset;
             access = SymbolWrapper.rgAccess[(int)member.access];
             name = child.Name;
             length = (int)grandChild.Length;
             alias = "alias_" + (member.offset).ToString();
-            LocationType location = (LocationType)member.locationType;
-            if(location == LocationType.LocIsBitField)
+            isBitField = ((LocationType)member.locationType == LocationType.LocIsBitField);
+            if(isBitField)
             {
-                isBitField = true;
                 startBit = (int)member.bitPosition;
                 endBit = (int)(member.bitPosition + member.length);
                 bitMask = GetMask(startBit, endBit);
                 type = "BitField";
+            }
+            else if(isEnum)
+            {
+                enumTarget = GetEnumType(grandChild);
+                enumName = grandChild.Name;
+                if(enumName.StartsWith("<unnamed"))
+                {
+                    enumName = enumName.ToUpper().Replace("-", "_").Replace("<", "_").Replace(">", "");
+                    friendlySymbolType = enumName;
+                }
+                type = "Enumeration";
             }
             else if (friendlySymbolType != null && friendlySymbolType.EndsWith("]"))
             {
@@ -57,10 +81,63 @@ namespace Pdb_Magician
                         arrayCount = int.Parse(parts[1]);
                         structureType = arrayType + "[]";
                         isArray = true;
+                        isBuiltinType = TestType(arrayType);
+                        arrayTarget = (SymbolKind)greatGrandChild.Kind;
+                        enumLength = (int)greatGrandChild.Length;
+                        enumName = greatGrandChild.Name;
+                        enumTarget = GetEnumType(greatGrandChild);
+                    }
+                    catch { }
+                }
+                else if(parts.Length == 3)
+                {
+                    try
+                    {
+                        isMultiDimensionalArray = true;
+                        isArray = true;
+                        arraySize = (int)grandChild.Length;
+                        arrayType = parts[0];
+                        arrayCount = int.Parse(parts[1]);
+                        int s = int.Parse(parts[2]);
+                        enumLength = arrayCount * s; // just using enumLength for convenience
+                        friendlySymbolType = arrayType + "[" + enumLength + "]";
+                        structureType = arrayType + "[]";
+                        isBuiltinType = TestType(arrayType);
+                        arrayTarget = (SymbolKind)greatGrandChild.Kind;
+                    }
+                    catch { }
+                }
+                else if(parts.Length == 4)
+                {
+                    try
+                    {
+                        isMultiDimensionalArray = true;
+                        arraySize = (int)grandChild.Length;
+                        arrayType = parts[0];
+                        arrayCount = int.Parse(parts[1]);
+                        int s = int.Parse(parts[2]);
+                        int t = int.Parse(parts[3]);
+                        enumLength = arrayCount * s * t; // just using enumLength for convenience
+                        friendlySymbolType = arrayType + "[" + enumLength + "]";
+                        structureType = arrayType + "[]";
+                        isBuiltinType = TestType(arrayType);
+                        arrayTarget = (SymbolKind)greatGrandChild.Kind;
+                        isArray = true;
                     }
                     catch { }
                 }
             }
+        }
+        private bool TestType(string arrayType)
+        {
+            if (arrayType == "Byte" || arrayType == "UInt16" || arrayType == "UInt32" || arrayType == "UInt64")
+                return true;
+            if (arrayType == "Int16" || arrayType == "Int32" || arrayType == "Int64")
+                return true;
+            if (arrayType == "float" || arrayType == "Double" || arrayType == "Char")
+                return true;
+
+            return false;
         }
         private UInt64 GetMask(int start, int end)
         {
@@ -76,6 +153,21 @@ namespace Pdb_Magician
                 counter *= 2;
             }
             return value;
+        }
+        private string GetEnumType(Symbol symbol)
+        {
+            switch (symbol.Length)
+            {
+                case 1:
+                    return "Byte";
+                case 2:
+                    return "UInt16";
+                case 4:
+                    return "UInt32";
+                case 8:
+                    return "UInt64";
+            }
+            return "unknown";
         }
         private string GetSymbolType(IDiaSymbol symbol)
         {
@@ -116,8 +208,8 @@ namespace Pdb_Magician
                         case (int)BasicType.btFloat:
                             switch (baseType.length)
                             {
-                                case 4: answer += "float "; break;
-                                case 8: answer += "Double "; break;
+                                case 4: answer += "float"; break;
+                                case 8: answer += "Double"; break;
                             }
                             break;
                         default:
@@ -139,9 +231,13 @@ namespace Pdb_Magician
                     answer += GetSymbolType(arg.type);
                     break;
                 case SymTagEnum.SymTagArrayType:
-                    ArrayType array = new ArrayType(symbol);
+                    ArrayType array = new ArrayType(symbol);                    
                     answer += GetSymbolType(array.type);
                     answer += "[" + array.count + "]";
+                    break;
+                case SymTagEnum.SymTagEnum:
+                    Enumerator e = new Enumerator(symbol);
+                    answer += e.name;
                     break;
                 default:
                     Debug.WriteLine("PROCESSING ERROR: GetSymbol Type didn't handle " + symbol.name);
@@ -173,6 +269,10 @@ namespace Pdb_Magician
                     return st.Replace("unsigned long long", "UInt64");
                 if (st.StartsWith("long"))
                     return st.Replace("long", "Int32");
+                if (st.StartsWith("char"))
+                    return st.Replace("char", "Char");
+                if (st.StartsWith("wchar_t"))
+                    return st.Replace("wchar_t", "UInt16");
                 if (st.StartsWith("long long"))
                     return st.Replace("long long", "Int64");
             }
@@ -186,6 +286,8 @@ namespace Pdb_Magician
                     return "Char";
                 case "byte":
                     return "Byte";
+                case "wchar_t":
+                    return "UInt16";
                 default:
                     return st;
             }
