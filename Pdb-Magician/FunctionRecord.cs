@@ -28,6 +28,7 @@ namespace Pdb_Magician
         public string arrayType;
         public int arrayCount;
         public int arraySize;
+        public int innerArraySize;
         public int enumLength;
         public string targetArg = "";
         public string enumName = "";
@@ -36,7 +37,7 @@ namespace Pdb_Magician
 
         public FunctionRecord(Symbol child, Members member, Symbol grandChild, int pointerSize)
         {
-            if (child.Name == "Cycles")
+            if (child.Name == "LargePages")
                 Debug.WriteLine("");
 
             _pointerSize = pointerSize;
@@ -107,12 +108,13 @@ namespace Pdb_Magician
                     }
                     catch { }
                 }
-                else if(parts.Length == 4)
+                else if(parts.Length == 4) // I can't keep doing this. Need to rewrite to handle any number of dimensions.
                 {
                     try
                     {
                         isMultiDimensionalArray = true;
                         arraySize = (int)grandChild.Length;
+                        innerArraySize = (int)greatGrandChild.Length;
                         arrayType = parts[0];
                         arrayCount = int.Parse(parts[1]);
                         int s = int.Parse(parts[2]);
@@ -178,7 +180,6 @@ namespace Pdb_Magician
                 case SymTagEnum.SymTagPointerType:
                     PointerType pointer = new PointerType(symbol);
                     answer += GetSymbolType(pointer.type);
-                    //PrintType(pointer.type, session, ref s_type);
                     answer += pointer.reference ? "&" : "*";
                     break;
                 case SymTagEnum.SymTagBaseType:
@@ -186,7 +187,6 @@ namespace Pdb_Magician
                     switch (baseType.baseType)
                     {
                         case (int)BasicType.btUInt:
-                            //s_type += "unsigned ";
                             switch (baseType.length)
                             {
                                 case 1: answer += "Byte"; break;
@@ -196,7 +196,6 @@ namespace Pdb_Magician
                             }
                             break;
                         case (int)BasicType.btInt:
-                            //s_type += "signed ";
                             switch (baseType.length)
                             {
                                 case 1: answer += "Byte"; break;
@@ -258,7 +257,6 @@ namespace Pdb_Magician
             {
                 if(st.Contains("*["))
                 {
-                    //  _RTL_BALANCED_NODE*[2] Children
                     int index = st.IndexOf('*');
                     targetArg = st.Substring(0, index+1);
                     return st.Replace(targetArg, pointer);

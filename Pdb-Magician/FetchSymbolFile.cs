@@ -108,9 +108,6 @@ namespace Pdb_Magician
         {
             FileInfo fi = new FileInfo(filePath);
             string newFilePath = RemoveUnderscore(fi.FullName);
-
-            //string uncompressedFilePath = filePath.Remove(filePath.Length - 1);
-            //uncompressedFilePath = uncompressedFilePath.Insert(uncompressedFilePath.Length, "b");
             string args = string.Format("expand {0} {1}", "\"" + filePath + "\"", "\"" + newFilePath + "\"");
 
             Match m = Regex.Match(args, "^\\s*\"(.*?)\"\\s*(.*)");

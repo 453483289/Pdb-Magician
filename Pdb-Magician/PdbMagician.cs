@@ -32,6 +32,11 @@ namespace Pdb_Magician
                 _errorList.Add("You didn't specify any structures to process.");
                 return false;
             }
+            _todoList.Clear();
+            _todoSymbolList.Clear();
+            _doneList.Clear();
+            _accessBlock.Clear();
+            _bodyList.Clear();            
             foreach (string item in todoList)
                 _todoList.Add(item);
 

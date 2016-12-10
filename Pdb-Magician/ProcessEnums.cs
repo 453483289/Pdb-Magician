@@ -35,6 +35,7 @@ namespace Pdb_Magician
                         {
                             if (enumerator.name.StartsWith("<unnamed"))
                             {
+                                enumerator.name = enumerator.name.Replace("tag", enumerator.id.ToString());
                                 enumerator.name = enumerator.name.ToUpper().Replace("-", "_").Replace("<", "_").Replace(">", "");
                             }
                             else
