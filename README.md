@@ -46,4 +46,4 @@ the structure members via the types.
 Each structure function contains a manifest member which will return a JSON string detailing the structure's 
 structure in a similar way to the rekall profiles.
 
-## Warning, I've done limited testing which seems to work, but I can't possible have covered all the possibilites, so I can't guarantee it'll work everytime.
+## Warning, I've done limited testing which seems to work, but I can't possible have covered all the possibilites, so I won't claim it'll work everytime.
